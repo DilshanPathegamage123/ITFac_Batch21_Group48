@@ -15,3 +15,17 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands';
+
+before(() => {
+    cy.log('Starting Cypress Test Suite');
+  });
+  
+  beforeEach(() => {
+    cy.viewport(1280, 720);
+      cy.clearCookies();
+    cy.clearLocalStorage();
+  });
+  
+  afterEach(() => {
+    cy.log('Test finished');
+  });
