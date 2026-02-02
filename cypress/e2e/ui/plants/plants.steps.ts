@@ -1,6 +1,9 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 import AddPlantPage from '../../../support/pages/addPlant.page';
 import PlantPage from '../../../support/pages/plant.page';
+import LoginPage from '../../../support/pages/login.page';
+import DashboardPage from '../../../support/pages/dashboard.page';
+import PlantsPage from '../../../support/pages/plants.page';
 
 // Admin User Scenarios
 Then('Admin is on Add Plant page {string}', (expectedUrl: string) => {
@@ -126,4 +129,41 @@ Then('User is redirected to 403 Forbidden page', () => {
 
 Then('Access denied message is displayed', () => {
   PlantPage.checkAccessDeniedMessage();
+});
+
+
+When('Admin clicks {string}', (text: string) => {
+  if (text === 'Manage Plants') {
+    DashboardPage.managePlantsButton().should('be.visible').click();
+  }
+});
+
+Then('Plant List page should load', () => {
+  PlantsPage.verifyUrl();
+  PlantsPage.title().should('be.visible');
+});
+
+Given('Admin is on Plant List page', () => {
+  cy.fixture('users').then((users) => {
+    LoginPage.visit();
+    LoginPage.login(users.admin.username, users.admin.password);
+    cy.visit('/ui/plants');
+    PlantsPage.verifyUrl();
+  });
+});
+
+Then('{string} button should be visible', (btn: string) => {
+  cy.contains(btn).should('be.visible');
+});
+
+Given('User is on Plant List page', () => {
+  cy.fixture('users').then((users) => {
+    LoginPage.visit();
+    LoginPage.login(users.user.username, users.user.password);
+    cy.visit('/ui/plants');
+  });
+});
+
+Then('{string} button should not be visible', (btn: string) => {
+  cy.contains(btn).should('not.exist');
 });
