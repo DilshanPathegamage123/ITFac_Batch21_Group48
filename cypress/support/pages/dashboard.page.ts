@@ -23,12 +23,48 @@ class DashboardPage {
     return cy.get('.dashboard-card').first();
   }
 
+  categorySummaryLeftStat() {
+    return this.categorySummarySection().find('.d-flex.justify-content-between > div').first();
+  }
+
+  categorySummaryRightStat() {
+    return this.categorySummarySection().find('.d-flex.justify-content-between > div.text-end');
+  }
+
+  categorySummaryButton() {
+    return this.categorySummarySection().find('a.btn');
+  }
+
   plantsSummarySection() {
     return cy.get('.dashboard-card').eq(1);
   }
 
+  plantsSummaryLeftStat() {
+    return this.plantsSummarySection().find('.d-flex.justify-content-between > div').first();
+  }
+
+  plantsSummaryRightStat() {
+    return this.plantsSummarySection().find('.d-flex.justify-content-between > div.text-end');
+  }
+
+  plantsSummaryButton() {
+    return this.plantsSummarySection().find('a.btn');
+  }
+
   salesSummarySection() {
     return cy.get('.dashboard-card').eq(2);
+  }
+
+  salesSummaryLeftStat() {
+    return this.salesSummarySection().find('.d-flex.justify-content-between > div').first();
+  }
+
+  salesSummaryRightStat() {
+    return this.salesSummarySection().find('.d-flex.justify-content-between > div.text-end');
+  }
+
+  salesSummaryButton() {
+    return this.salesSummarySection().find('a.btn');
   }
 
   summaryCards() {
@@ -49,6 +85,22 @@ class DashboardPage {
 
   dashboardMenuItemActive() {
     return cy.get('a.nav-link.active').contains('Dashboard');
+  }
+
+  categoriesMenuItem() {
+    return cy.get('a.nav-link').contains('Categories');
+  }
+
+  categoriesMenuItemActive() {
+    return cy.get('a.nav-link.active').contains('Categories');
+  }
+
+  navigateToCategories() {
+    this.manageCategoriesButton().click();
+  }
+
+  navigateToDashboard() {
+    this.dashboardMenuItem().click();
   }
 }
 export default new DashboardPage();
