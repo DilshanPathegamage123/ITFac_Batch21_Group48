@@ -33,10 +33,6 @@ verifyUrl(expectedUrl: string) {
 
 
 
-  // clickAddCategory() {
-  //   return cy.contains('Add A Category').click();
-  // }
-
   addCategory(name: string) {
     cy.get('[name="name"]').clear().type(name);
     // Optionally add parent category here if needed
@@ -76,7 +72,23 @@ verifyUrl(expectedUrl: string) {
   tableShouldHaveRows() {
     cy.get('tbody tr').its('length').should('be.greaterThan', 0);
   }
+
+  shouldBeSortedByName() {
+  cy.get('tbody tr td:first-child').then(($cells) => {
+    const names = [...$cells].map(el => el.innerText.trim());
+    const sorted = [...names].sort((a, b) => a.localeCompare(b));
+    expect(names).to.deep.equal(sorted);
+  });
 }
+
+  rowsShouldMatchParent(parent: string) {
+  cy.get('tbody tr').each(($row) => {
+    cy.wrap($row).should('contain.text', parent);
+  });
+}
+
+}
+
 
 
 

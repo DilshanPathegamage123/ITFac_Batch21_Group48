@@ -111,8 +111,6 @@ Then('all Delete buttons should be visually disabled', () => {
   });
 });
 
-
-
 Given('Admin is on Categories page', () => {
   cy.visit('/ui/categories');
 });
@@ -204,8 +202,6 @@ When(
 );
 
 
-
-
 When('user searches for {string}', (name: string) => {
   CategoriesPage.search(name);
 });
@@ -215,27 +211,17 @@ When('user filters by parent {string}', (parent: string) => {
   CategoriesPage.search('');
 });
 
-// Then('results should match parent', () => {
-//   CategoriesPage.tableShouldHaveRows();
-// });
-
 Then('results should match parent {string}', (parent: string) => {
   CategoriesPage.rowsShouldMatchParent(parent);
 });
-
 
 When('user sorts by name', () => {
   CategoriesPage.sortByName();
 });
 
-// Then('categories should be sorted', () => {
-//   CategoriesPage.tableShouldHaveRows();
-// });
-
 Then('categories should be sorted', () => {
   CategoriesPage.shouldBeSortedByName();
 });
-
 
 When('user clicks reset', () => {
   CategoriesPage.reset();
