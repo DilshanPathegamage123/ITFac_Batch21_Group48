@@ -2,6 +2,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import LoginPage from '../../../support/pages/login.page';
 import DashboardPage from '../../../support/pages/dashboard.page';
 import CategoriesPage from '../../../support/pages/categories.page';
+import AddCategoryPage from '../../../support/pages/addCategory.page';
 
 Given('Admin is logged in', () => {
   cy.fixture('users').then((users) => {
@@ -25,6 +26,7 @@ When('Admin clicks on Manage Categories button', () => {
 Then('the URL should be {string}', (expectedUrl: string) => {
   CategoriesPage.verifyUrl(expectedUrl);
 });
+
 
 Then('Categories page title should be {string}', (expectedTitle: string) => {
   CategoriesPage.title()
@@ -108,5 +110,141 @@ Then('all Delete buttons should be visually disabled', () => {
     cy.wrap($btn).should('be.disabled');
   });
 });
+
+
+
+Given('Admin is on Categories page', () => {
+  cy.visit('/ui/categories');
+});
+
+Given('User is logged in', () => {
+  cy.fixture('users').then((users) => {
+    LoginPage.visit();
+    LoginPage.login(users.user.username, users.user.password);
+  });
+});
+
+Given('User is on Categories page', () => {
+  cy.visit('/ui/categories');
+});
+
+
+
+
+When('Admin clicks Add A Category button', () => {
+  CategoriesPage.addCategoryButton()
+    .should('be.visible')
+    .click();
+});
+
+Then('URL should be {string}', (url: string) => {
+  cy.url().should('include', url);
+});
+
+Then('page heading should be {string}', (expectedHeading: string) => {
+  AddCategoryPage.heading()
+    .should('be.visible')
+    .and('have.text', expectedHeading);
+});
+
+When('Admin adds category {string}', (categoryName: string) => {
+  // Click Add A Category
+  CategoriesPage.addCategoryButton()
+    .should('be.visible')
+    .click();
+  AddCategoryPage.addCategory(categoryName);
+});
+
+// Verify success message (you can use React Hot Toast or UI toast selector)
+Then('success message should be visible', () => {
+  cy.contains('Category created successfully')
+  .should('be.visible');
+});
+
+// Verify new category appears in table
+Then('table should contain {string}', (categoryName: string) => {
+  CategoriesPage.categoryRows()
+    .should('contain.text', categoryName);
+});
+
+When('Admin saves category without name', () => {
+  CategoriesPage.addCategoryButton().click();
+  cy.url().should('include', '/ui/categories/add');
+  AddCategoryPage.save();
+});
+
+Then('error message should be visible', () => {
+  cy.contains('Category name')
+  .should('be.visible')
+    .and('contain.text', 'Category name must be between 3 and 10 characters')
+    .and('contain.text', 'Category name is required');
+});
+
+
+When(
+  'Admin edits category {string} to {string}',
+  (oldName: string, newName: string) => {
+
+    // find row containing old category
+    cy.contains('tbody tr', oldName)
+      .within(() => {
+        cy.get('a.btn-outline-primary').click(); // Edit button
+      });
+
+    // ensure edit page opened
+    cy.url().should('include', '/ui/categories/edit');
+
+    // update name
+    AddCategoryPage.nameInput()
+      .clear()
+      .type(newName);
+
+    AddCategoryPage.save();
+  }
+);
+
+
+
+
+When('user searches for {string}', (name: string) => {
+  CategoriesPage.search(name);
+});
+
+When('user filters by parent {string}', (parent: string) => {
+  CategoriesPage.selectParent(parent);
+  CategoriesPage.search('');
+});
+
+// Then('results should match parent', () => {
+//   CategoriesPage.tableShouldHaveRows();
+// });
+
+Then('results should match parent {string}', (parent: string) => {
+  CategoriesPage.rowsShouldMatchParent(parent);
+});
+
+
+When('user sorts by name', () => {
+  CategoriesPage.sortByName();
+});
+
+// Then('categories should be sorted', () => {
+//   CategoriesPage.tableShouldHaveRows();
+// });
+
+Then('categories should be sorted', () => {
+  CategoriesPage.shouldBeSortedByName();
+});
+
+
+When('user clicks reset', () => {
+  CategoriesPage.reset();
+});
+
+Then('all categories should be visible', () => {
+  CategoriesPage.tableShouldHaveRows();
+});
+
+
 
 

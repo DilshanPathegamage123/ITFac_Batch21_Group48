@@ -1,5 +1,5 @@
 class CategoriesPage {
-  verifyUrl(expectedUrl: string) {
+verifyUrl(expectedUrl: string) {
     cy.url().should('include', expectedUrl);
   }
 
@@ -30,5 +30,54 @@ class CategoriesPage {
   deleteButtons() {
     return cy.get('table tbody tr').find('button.btn-outline-danger'); 
   }
+
+
+
+  // clickAddCategory() {
+  //   return cy.contains('Add A Category').click();
+  // }
+
+  addCategory(name: string) {
+    cy.get('[name="name"]').clear().type(name);
+    // Optionally add parent category here if needed
+    this.save();
+  }
+
+  save() {
+    cy.contains('Save').click();
+  }
+
+   errorMessage() {
+    return cy.get('.error-message'); // replace with correct selector
+  }
+
+  search(name: string) {
+    cy.get('input[name="name"]').clear().type(name);
+    cy.contains('Search').click();
+  }
+
+  reset() {
+    return cy.contains('Reset').click();
+  }
+
+  selectParent(parent: string) {
+    cy.get('select[name="parentId"]').should('be.visible');
+    cy.get('select[name="parentId"]').select(parent);
+  }
+
+  sortByName() {
+    cy.contains('th', 'Name').click();
+  }
+
+  tableShouldContain(text: string) {
+    cy.get('tbody').should('contain', text);
+  }
+
+  tableShouldHaveRows() {
+    cy.get('tbody tr').its('length').should('be.greaterThan', 0);
+  }
 }
+
+
+
 export default new CategoriesPage();
