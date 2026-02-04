@@ -211,6 +211,28 @@ Given('User is on Plant List page', () => {
   });
 });
 
+
 Then('{string} button should not be visible', (btn: string) => {
   cy.contains(btn).should('not.exist');
 });
+
+Then('Edit and Delete actions should not be visible', () => {
+  cy.get('.edit').should('not.exist');
+  cy.get('.delete').should('not.exist');
+});
+
+When('User searches for plant {string}', (plantName: string) => {
+  cy.get('input[name="name"]').clear().type(plantName);
+  cy.contains('Search').click();
+});
+
+Then('Matching plant records should be displayed', () => {
+  cy.get('tbody tr').should('have.length.greaterThan', 0);
+});
+
+
+Then('"No plants found" message should be displayed', () => {
+  cy.contains('No plants found').should('be.visible');
+});
+
+
