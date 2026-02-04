@@ -2,6 +2,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import LoginPage from '../../../support/pages/login.page';
 import DashboardPage from '../../../support/pages/dashboard.page';
 import CategoriesPage from '../../../support/pages/categories.page';
+import AddCategoryPage from '../../../support/pages/addCategory.page';
 
 Given('Admin is logged in', () => {
   cy.fixture('users').then((users) => {
@@ -25,6 +26,7 @@ When('Admin clicks on Manage Categories button', () => {
 Then('the URL should be {string}', (expectedUrl: string) => {
   CategoriesPage.verifyUrl(expectedUrl);
 });
+
 
 Then('Categories page title should be {string}', (expectedTitle: string) => {
   CategoriesPage.title()
@@ -110,3 +112,94 @@ Then('all Delete buttons should be visually disabled', () => {
 });
 
 
+
+Given('Admin is on Categories page', () => {
+  cy.visit('/ui/categories');
+});
+
+Given('User is logged in', () => {
+  cy.fixture('users').then((users) => {
+    LoginPage.visit();
+    LoginPage.login(users.user.username, users.user.password);
+  });
+});
+
+Given('User is on Categories page', () => {
+  cy.visit('/ui/categories');
+});
+
+
+
+
+
+/* ---------- ADMIN ---------- */
+
+When('Admin clicks Add A Category button', () => {
+  CategoriesPage.clickAddCategory();
+  cy.url().should('include', '/ui/categories/add');
+});
+
+When('Admin adds category {string}', (name: string) => {
+  CategoriesPage.clickAddCategory();
+  cy.url().should('include', '/ui/categories/add');
+  AddCategoryPage.addCategory(name);
+});
+
+When('Admin saves category without name', () => {
+  CategoriesPage.clickAddCategory();
+  cy.url().should('include', '/ui/categories/add');
+  AddCategoryPage.save();
+});
+
+/* ---------- USER ACTIONS ---------- */
+
+When('user searches for {string}', (name: string) => {
+  CategoriesPage.search(name);
+});
+
+When('user filters by parent {string}', (parent: string) => {
+  CategoriesPage.selectParent(parent);
+  CategoriesPage.search('');
+});
+
+When('user sorts by name', () => {
+  CategoriesPage.sortByName();
+});
+
+When('user clicks reset', () => {
+  CategoriesPage.reset();
+});
+
+/* ---------- ASSERTIONS ---------- */
+
+Then('URL should be {string}', (url: string) => {
+  cy.url().should('include', url);
+});
+
+Then('page heading should be {string}', (text: string) => {
+  cy.contains('h3', text).should('be.visible');
+});
+
+Then('table should contain {string}', (text: string) => {
+  CategoriesPage.tableShouldContain(text);
+});
+
+Then('all categories should be visible', () => {
+  CategoriesPage.tableShouldHaveRows();
+});
+
+Then('success message should be visible', () => {
+  cy.contains('success').should('be.visible');
+});
+
+Then('error message should be visible', () => {
+  cy.contains('required').should('be.visible');
+});
+
+Then('results should match parent', () => {
+  CategoriesPage.tableShouldHaveRows();
+});
+
+Then('categories should be sorted', () => {
+  CategoriesPage.tableShouldHaveRows();
+});
