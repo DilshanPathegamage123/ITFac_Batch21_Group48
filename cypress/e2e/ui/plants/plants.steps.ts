@@ -156,6 +156,53 @@ Then('{string} button should be visible', (btn: string) => {
   cy.contains(btn).should('be.visible');
 });
 
+Then('Edit and Delete buttons should be visible for each plant', () => {
+  PlantsPage.editButtons().should('have.length.greaterThan', 0);
+  PlantsPage.deleteButtons().should('have.length.greaterThan', 0);
+
+  PlantsPage.editButtons().each(($btn) => {
+    cy.wrap($btn).should('be.visible').and('not.have.class', 'disabled');
+  });
+
+  PlantsPage.deleteButtons().each(($btn) => {
+    cy.wrap($btn).should('be.visible').and('not.have.class', 'disabled');
+  });
+});
+
+Then('Low stock badge should be displayed', () => {
+  PlantsPage.lowStockBadges().should('be.visible');
+});
+
+When('Admin clicks Name column', () => {
+  PlantsPage.nameHeader().click();
+});
+Then('Plants should be sorted by Name in ascending order', () => {
+  const names: string[] = [];
+  PlantsPage.nameCells()
+    .each(($cell) => {
+      names.push($cell.text().trim());
+    })
+    .then(() => {
+      const sortedNames = [...names].sort((a, b) => a.localeCompare(b));
+      expect(names).to.deep.equal(sortedNames);
+    });
+});
+
+Then('Plants should be sorted by {word} order', (order: string) => {
+  const names: string[] = [];
+
+  PlantsPage.nameCells()
+    .each(($cell) => {
+      names.push($cell.text().trim());
+    })
+    .then(() => {
+      const sortedNames = [...names].sort((a, b) =>
+        order === 'ascending' ? a.localeCompare(b) : b.localeCompare(a)
+      );
+      expect(names).to.deep.equal(sortedNames);
+    });
+});
+
 Given('User is on Plant List page', () => {
   cy.fixture('users').then((users) => {
     LoginPage.visit();
