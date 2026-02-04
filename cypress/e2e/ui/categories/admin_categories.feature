@@ -28,6 +28,36 @@ Feature: Categories Navigation
 
 
 
+  Scenario: TC_ADMIN_CAT_11 Verify Add Category URL
+    Given Admin is on Categories page
+    When Admin clicks Add A Category button
+    Then URL should be "/ui/categories/add"
+
+  Scenario: TC_ADMIN_CAT_12 Verify Add Category heading
+    Given Admin is on Categories page
+    When Admin clicks Add A Category button
+    Then page heading should be "Add Category"
+
+  Scenario: TC_ADMIN_CAT_13 Add new category successfully
+    Given Admin is on Categories page
+    When Admin adds category "Birds"
+    Then success message should be visible
+    And table should contain "Birds"
+
+  Scenario: TC_ADMIN_CAT_14 Validate empty name error
+    Given Admin is on Categories page
+    When Admin saves category without name
+    Then error message should be visible
+
+  Scenario: TC_ADMIN_CAT_15 Edit existing category successfully
+    Given Admin is on Categories page
+    When Admin edits category "Birds" to "Pets"
+    Then URL should be "/ui/categories"
+    And table should contain "Pets"
+
+
+
+
 
 
 

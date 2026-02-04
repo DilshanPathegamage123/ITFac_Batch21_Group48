@@ -1,5 +1,5 @@
 class CategoriesPage {
-  verifyUrl(expectedUrl: string) {
+verifyUrl(expectedUrl: string) {
     cy.url().should('include', expectedUrl);
   }
 
@@ -33,8 +33,22 @@ class CategoriesPage {
 
 
 
-    clickAddCategory() {
-    cy.contains('Add A Category').click();
+  // clickAddCategory() {
+  //   return cy.contains('Add A Category').click();
+  // }
+
+  addCategory(name: string) {
+    cy.get('[name="name"]').clear().type(name);
+    // Optionally add parent category here if needed
+    this.save();
+  }
+
+  save() {
+    cy.contains('Save').click();
+  }
+
+   errorMessage() {
+    return cy.get('.error-message'); // replace with correct selector
   }
 
   search(name: string) {
@@ -43,7 +57,7 @@ class CategoriesPage {
   }
 
   reset() {
-    cy.contains('Reset').click();
+    return cy.contains('Reset').click();
   }
 
   selectParent(parent: string) {

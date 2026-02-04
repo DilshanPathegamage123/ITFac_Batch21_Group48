@@ -131,27 +131,80 @@ Given('User is on Categories page', () => {
 
 
 
-
-/* ---------- ADMIN ---------- */
-
 When('Admin clicks Add A Category button', () => {
-  CategoriesPage.clickAddCategory();
-  cy.url().should('include', '/ui/categories/add');
+  CategoriesPage.addCategoryButton()
+    .should('be.visible')
+    .click();
 });
 
-When('Admin adds category {string}', (name: string) => {
-  CategoriesPage.clickAddCategory();
-  cy.url().should('include', '/ui/categories/add');
-  AddCategoryPage.addCategory(name);
+Then('URL should be {string}', (url: string) => {
+  cy.url().should('include', url);
+});
+
+Then('page heading should be {string}', (expectedHeading: string) => {
+  AddCategoryPage.heading()
+    .should('be.visible')
+    .and('have.text', expectedHeading);
+});
+
+When('Admin adds category {string}', (categoryName: string) => {
+  // Click Add A Category
+  CategoriesPage.addCategoryButton()
+    .should('be.visible')
+    .click();
+  AddCategoryPage.addCategory(categoryName);
+});
+
+// Verify success message (you can use React Hot Toast or UI toast selector)
+Then('success message should be visible', () => {
+  cy.contains('Category created successfully')
+  .should('be.visible');
+});
+
+// Verify new category appears in table
+Then('table should contain {string}', (categoryName: string) => {
+  CategoriesPage.categoryRows()
+    .should('contain.text', categoryName);
 });
 
 When('Admin saves category without name', () => {
-  CategoriesPage.clickAddCategory();
+  CategoriesPage.addCategoryButton().click();
   cy.url().should('include', '/ui/categories/add');
   AddCategoryPage.save();
 });
 
-/* ---------- USER ACTIONS ---------- */
+Then('error message should be visible', () => {
+  cy.contains('Category name')
+  .should('be.visible')
+    .and('contain.text', 'Category name must be between 3 and 10 characters')
+    .and('contain.text', 'Category name is required');
+});
+
+
+When(
+  'Admin edits category {string} to {string}',
+  (oldName: string, newName: string) => {
+
+    // find row containing old category
+    cy.contains('tbody tr', oldName)
+      .within(() => {
+        cy.get('a.btn-outline-primary').click(); // Edit button
+      });
+
+    // ensure edit page opened
+    cy.url().should('include', '/ui/categories/edit');
+
+    // update name
+    AddCategoryPage.nameInput()
+      .clear()
+      .type(newName);
+
+    AddCategoryPage.save();
+  }
+);
+
+
+
 
 When('user searches for {string}', (name: string) => {
   CategoriesPage.search(name);
@@ -162,44 +215,36 @@ When('user filters by parent {string}', (parent: string) => {
   CategoriesPage.search('');
 });
 
+// Then('results should match parent', () => {
+//   CategoriesPage.tableShouldHaveRows();
+// });
+
+Then('results should match parent {string}', (parent: string) => {
+  CategoriesPage.rowsShouldMatchParent(parent);
+});
+
+
 When('user sorts by name', () => {
   CategoriesPage.sortByName();
 });
 
+// Then('categories should be sorted', () => {
+//   CategoriesPage.tableShouldHaveRows();
+// });
+
+Then('categories should be sorted', () => {
+  CategoriesPage.shouldBeSortedByName();
+});
+
+
 When('user clicks reset', () => {
   CategoriesPage.reset();
-});
-
-/* ---------- ASSERTIONS ---------- */
-
-Then('URL should be {string}', (url: string) => {
-  cy.url().should('include', url);
-});
-
-Then('page heading should be {string}', (text: string) => {
-  cy.contains('h3', text).should('be.visible');
-});
-
-Then('table should contain {string}', (text: string) => {
-  CategoriesPage.tableShouldContain(text);
 });
 
 Then('all categories should be visible', () => {
   CategoriesPage.tableShouldHaveRows();
 });
 
-Then('success message should be visible', () => {
-  cy.contains('success').should('be.visible');
-});
 
-Then('error message should be visible', () => {
-  cy.contains('required').should('be.visible');
-});
 
-Then('results should match parent', () => {
-  CategoriesPage.tableShouldHaveRows();
-});
 
-Then('categories should be sorted', () => {
-  CategoriesPage.tableShouldHaveRows();
-});
