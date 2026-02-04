@@ -4,7 +4,7 @@ Feature: Admin Dashboard
     Given Admin is logged in
 
   Scenario: TC_ADMIN_DASH_01 - Verify Dashboard loads for Admin after login
-    Then User is redirected to Dashboard page "/ui/dashboard"
+    Then Admin is redirected to Dashboard page "/ui/dashboard"
     And Dashboard page loads successfully
 
   Scenario: TC_ADMIN_DASH_02 - Verify Dashboard displays all summary sections for Admin
