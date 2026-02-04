@@ -1,7 +1,7 @@
-import { When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 import DashboardPage from '../../../support/pages/dashboard.page';
 
-Then('User is redirected to Dashboard page {string}', (expectedUrl: string) => {
+Then('Admin is redirected to Dashboard page {string}', (expectedUrl: string) => {
   DashboardPage.verifyUrl(expectedUrl);
 });
 
@@ -99,4 +99,26 @@ Then('Categories menu item status should be active', () => {
 When('Admin navigates back to Dashboard page', () => {
   DashboardPage.navigateToDashboard();
   cy.url().should('include', '/ui/dashboard');
+});
+
+//non admin user steps
+Then('Non-Admin user is redirected to Dashboard page {string}', (expectedUrl: string) => {
+  DashboardPage.verifyUrl(expectedUrl);
+});
+
+Given('Non-Admin user is not logged in', () => {
+  cy.clearCookies();
+  cy.clearLocalStorage();
+});
+
+When('Non-Admin user navigates directly to Dashboard URL', () => {
+  cy.visit('/ui/dashboard', { failOnStatusCode: false });
+});
+
+Then('Non-Admin user is redirected to {string} page', (expectedUrl: string) => {
+  cy.url().should('include', expectedUrl);
+});
+
+Then('Dashboard page should not be accessible', () => {
+  cy.url().should('include', '/ui/login');
 });
