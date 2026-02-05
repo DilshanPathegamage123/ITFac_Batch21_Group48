@@ -35,7 +35,6 @@ verifyUrl(expectedUrl: string) {
 
   addCategory(name: string) {
     cy.get('[name="name"]').clear().type(name);
-    // Optionally add parent category here if needed
     this.save();
   }
 
@@ -44,7 +43,7 @@ verifyUrl(expectedUrl: string) {
   }
 
    errorMessage() {
-    return cy.get('.error-message'); // replace with correct selector
+    return cy.get('.error-message');
   }
 
   search(name: string) {

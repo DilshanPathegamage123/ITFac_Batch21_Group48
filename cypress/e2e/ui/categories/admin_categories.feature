@@ -1,4 +1,4 @@
-Feature: Categories Navigation
+Feature: Admin User – Categories
 
   Background:
     Given Admin is logged in
