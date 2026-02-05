@@ -26,7 +26,7 @@ class PlantsPage {
   }
 
   nameCells() {
-    return cy.get('tbody tr td:nth-child(2)'); 
+    return cy.get('tbody tr td:nth-child(2)');
   }
 }
 

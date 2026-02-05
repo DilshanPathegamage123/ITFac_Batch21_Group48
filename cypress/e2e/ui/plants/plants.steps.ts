@@ -211,7 +211,6 @@ Given('User is on Plant List page', () => {
   });
 });
 
-
 Then('{string} button should not be visible', (btn: string) => {
   cy.contains(btn).should('not.exist');
 });
@@ -230,9 +229,6 @@ Then('Matching plant records should be displayed', () => {
   cy.get('tbody tr').should('have.length.greaterThan', 0);
 });
 
-
 Then('"No plants found" message should be displayed', () => {
   cy.contains('No plants found').should('be.visible');
 });
-
-
