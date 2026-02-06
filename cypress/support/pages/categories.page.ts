@@ -35,7 +35,6 @@ verifyUrl(expectedUrl: string) {
 
   addCategory(name: string) {
     cy.get('[name="name"]').clear().type(name);
-    // Optionally add parent category here if needed
     this.save();
   }
 
@@ -44,9 +43,16 @@ verifyUrl(expectedUrl: string) {
   }
 
    errorMessage() {
-    return cy.get('.error-message'); // replace with correct selector
+    return cy.get('.error-message');
   }
 
+  openEditFor(name: string) {
+  cy.contains('tbody tr', name)
+    .within(() => {
+      cy.get('a.btn-outline-primary').click();
+    });
+  }
+  
   search(name: string) {
     cy.get('input[name="name"]').clear().type(name);
     cy.contains('Search').click();

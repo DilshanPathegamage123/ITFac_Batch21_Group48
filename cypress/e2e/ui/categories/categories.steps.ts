@@ -184,23 +184,15 @@ When(
   (oldName: string, newName: string) => {
 
     // find row containing old category
-    cy.contains('tbody tr', oldName)
-      .within(() => {
-        cy.get('a.btn-outline-primary').click(); // Edit button
-      });
+    CategoriesPage.openEditFor(oldName);
 
     // ensure edit page opened
     cy.url().should('include', '/ui/categories/edit');
 
     // update name
-    AddCategoryPage.nameInput()
-      .clear()
-      .type(newName);
-
-    AddCategoryPage.save();
+    AddCategoryPage.updateCategoryName(newName);
   }
 );
-
 
 When('user searches for {string}', (name: string) => {
   CategoriesPage.search(name);

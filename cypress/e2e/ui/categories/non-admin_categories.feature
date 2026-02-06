@@ -1,4 +1,4 @@
-Feature: User – Categories Access Control
+Feature: Non-Admin User – Categories
 
   Background:
     Given Non-Admin user is logged in

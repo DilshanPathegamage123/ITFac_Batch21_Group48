@@ -16,6 +16,12 @@ class AddCategoryPage {
   nameInput() {
     return cy.get('[name="name"]');
   }
+
+  updateCategoryName(name: string) {
+  this.nameInput().clear().type(name);
+  this.save();
+  }
+
 }
 
 export default new AddCategoryPage();
