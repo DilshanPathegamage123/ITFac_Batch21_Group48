@@ -40,9 +40,9 @@ Feature: Admin User – Categories
 
   Scenario: TC_ADMIN_CAT_13 Add new category successfully
     Given Admin is on Categories page
-    When Admin adds category "Birds"
+    When Admin adds category "SunFlower"
     Then success message should be visible
-    And table should contain "Birds"
+    And table should contain "SunFlower"
 
   Scenario: TC_ADMIN_CAT_14 Validate empty name error
     Given Admin is on Categories page
@@ -51,9 +51,9 @@ Feature: Admin User – Categories
 
   Scenario: TC_ADMIN_CAT_15 Edit existing category successfully
     Given Admin is on Categories page
-    When Admin edits category "Birds" to "Pets"
+    When Admin edits category "SunFlower" to "Araliya"
     Then URL should be "/ui/categories"
-    And table should contain "Pets"
+    And table should contain "Araliya"
 
 
 
