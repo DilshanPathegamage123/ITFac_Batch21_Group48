@@ -1,0 +1,31 @@
+{
+  "name": "itfac_batch21_group48",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test:ui": "cypress run --spec 'cypress/e2e/ui/**/*.feature'",
+    "test:api": "cypress run --spec 'cypress/e2e/api/**/*.feature'",
+    "format": "prettier --write 'cypress/**/*.{ts,js,feature,json}'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^24.0.0",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.8",
+    "cypress": "^15.9.0",
+    "eslint": "^9.39.2",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3"
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "printWidth": 100
+  }
+}
