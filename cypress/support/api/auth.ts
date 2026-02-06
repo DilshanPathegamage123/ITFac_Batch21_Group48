@@ -17,4 +17,3 @@ export const apiLogin = (role: "admin" | "user") => {
       });
     });
   };
-  
