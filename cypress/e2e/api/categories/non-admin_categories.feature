@@ -36,3 +36,13 @@ Feature: Non-Admin User – Categories - API
     When user sends DELETE request to delete the category
     Then the response status should be 403
     And the response body should contain "Forbidden"
+
+  Scenario: TC_USER_CAT_21 - Verify when non-admin deleting non-existing category returns 403
+    Given compute a non-existing category ID
+    When user sends DELETE request to delete the category
+    Then the response status should be 403
+
+  Scenario: TC_USER_CAT_22 - Verify non-admin user receives empty paginated result for non-matching name
+   When user sends a GET request to retrieve paginated categories with name "___NO_MATCH___"
+   Then the response status should be 200
+   And the paginated response content should be empty

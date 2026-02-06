@@ -23,19 +23,6 @@ Given("Non-admin user is authenticated via API", () => {
   });
 });
 
-// Common assertion steps
-Then("the response status should be 200", () => {
-  expect(response.status).to.eq(200);
-});
-
-Then("the response status should be 204", () => {
-  expect(response.status).to.eq(204);
-});
-
-Then("the response status should be 401", () => {
-  expect(response.status).to.eq(401);
-});
-
-Then("the response status should be 403", () => {
-  expect(response.status).to.eq(403);
+Then("the response status should be {int}", (status: number) => {
+  expect(response.status).to.eq(status);
 });

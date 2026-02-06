@@ -34,3 +34,8 @@ Feature: Admin User – Categories - API
     Then the response status should be 204
     And the response body should be empty
     And attempting to retrieve the deleted category should return 404
+
+  Scenario: TC_ADMIN_CAT_21 - Verify when admin deleting non-existing category returns 404
+    Given compute a non-existing category ID
+    When user sends DELETE request to delete the category
+    Then the response status should be 404

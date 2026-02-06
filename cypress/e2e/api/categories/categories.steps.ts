@@ -62,6 +62,19 @@ Given("an existing category is available for non-admin delete test", () => {
   });
 });
 
+// Step to dynamically compute a non-existing ID
+Given("compute a non-existing category ID", () => {
+  cy.request({
+    method: "GET",
+    url: "/api/categories",
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => {
+    const existingIds = res.body.map((c: any) => c.id);
+    const maxId = Math.max(...existingIds);
+    categoryIdToDelete = maxId + 1;
+  });
+});
+
 // Main requests
 When("user sends a GET request to retrieve all categories", () => {
   cy.request({
@@ -119,6 +132,18 @@ When("user sends a GET request to retrieve paginated categories", () => {
 }
 );
 
+When(
+  "unauthenticated user sends {string} request to {string}",
+  (method: string, endpoint: string) => {
+    cy.request({
+      method,
+      url: endpoint,
+      failOnStatusCode: false,
+    }).then((res) => {
+      setResponse(res);
+    });
+  }
+);
 
 // Assertions
 
@@ -231,6 +256,12 @@ Then(
     });
   }
 );
+
+Then("the paginated response content should be empty", () => {
+  expect(response.body).to.have.property("content");
+  expect(response.body.content).to.be.an("array");
+  expect(response.body.content.length).to.eq(0);
+});
 
 Then(
   "the response body should contain {string}",
