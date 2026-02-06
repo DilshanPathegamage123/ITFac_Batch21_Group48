@@ -32,6 +32,10 @@ Then("the response status should be 204", () => {
   expect(response.status).to.eq(204);
 });
 
+Then("the response status should be 400", () => {
+  expect(response.status).to.eq(400);
+});
+
 Then("the response status should be 401", () => {
   expect(response.status).to.eq(401);
 });
