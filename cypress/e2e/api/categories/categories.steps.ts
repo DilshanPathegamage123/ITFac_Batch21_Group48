@@ -136,9 +136,6 @@ When("user sends a GET request to retrieve paginated categories", () => {
 
 
 // Assertions
-Then("the response status should be 200", () => {
-  expect(response.status).to.eq(200);
-});
 
 Then("the response should contain a list of categories", () => {
   expect(response.body).to.be.an("array");
