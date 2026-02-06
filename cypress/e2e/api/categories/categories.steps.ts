@@ -3,10 +3,18 @@ import { apiLogin } from "../../../support/api/auth";
 
 let response: Cypress.Response<any>;
 let token: string;
+let categoryIdToDelete: number;
 
-// Authenticate admin
-Given("Admin is authenticated via API", () => {
+// Authenticate admin user
+Given("Admin user is authenticated via API", () => {
   apiLogin("admin").then((t) => {
+    token = t;
+  });
+});
+
+// Authenticate non-admin user
+Given("Non-admin user is authenticated via API", () => {
+  apiLogin("user").then((t) => {
     token = t;
   });
 });
@@ -19,7 +27,7 @@ Given("at least one category exists in the system", () => {
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => {
     expect(res.body.length).to.be.greaterThan(0);
-    response = res; // optional, you can reuse it for next steps
+    response = res;
   });
 });
 
@@ -36,8 +44,41 @@ Given("there is at least one matching category", () => {
   });
 });
 
+// Precondition: Category to be deleted should exists
+Given("Category which is going to be deleted exists in the system", () => {
+  const categoryName = `CAT${Date.now().toString().slice(-4)}`;
+
+  cy.request({
+    method: "POST",
+    url: "/api/categories",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: {
+      name: categoryName,
+      parent: null,
+      subCategories: [],
+    },
+  }).then((res) => {
+    expect(res.status).to.eq(201);
+    categoryIdToDelete = res.body.id;
+  });
+});
+
+// Precondition: Existing category for non-admin delete test
+Given("an existing category is available for non-admin delete test", () => {
+  cy.request({
+    method: "GET",
+    url: "/api/categories",
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => {
+    expect(res.body.length).to.be.greaterThan(0);
+    categoryIdToDelete = res.body[0].id; 
+  });
+});
+
 // Main requests
-When("Admin sends a GET request to retrieve all categories", () => {
+When("user sends a GET request to retrieve all categories", () => {
   cy.request({
     method: "GET",
     url: "/api/categories",
@@ -48,7 +89,7 @@ When("Admin sends a GET request to retrieve all categories", () => {
 });
 
 When(
-  "Admin sends a GET request to retrieve categories with name {string}",
+  "user sends a GET request to retrieve categories with name {string}",
   (name: string) => {
     cy.request({
       method: "GET",
@@ -60,6 +101,39 @@ When(
     });
   }
 );
+
+When("user sends DELETE request to delete the category", () => {
+  cy.request({
+    method: "DELETE",
+    url: `/api/categories/${categoryIdToDelete}`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    failOnStatusCode: false,
+  }).then((res) => {
+    response = res;
+  });
+});
+
+When("user sends a GET request to retrieve paginated categories", () => {
+  cy.request({
+    method: "GET",
+    url: "/api/categories/page",
+    qs: {
+      page: 0,
+      size: 10,
+      sortField: "id",
+      sortDir: "asc",
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }).then((res) => {
+    response = res;
+  });
+}
+);
+
 
 // Assertions
 Then("the response status should be 200", () => {
@@ -99,3 +173,95 @@ Then("each category should have id, name, and parentName", () => {
     expect(category.parentName).to.be.a("string");
   });
 });
+
+Then("the response status should be 204", () => {
+  expect(response.status).to.eq(204);
+});
+
+Then("the response body should be empty", () => {
+  expect(response.body).to.be.empty;
+});
+
+Then(
+  "attempting to retrieve the deleted category should return 404",
+  () => {
+    cy.request({
+      method: "GET",
+      url: `/api/categories/${categoryIdToDelete}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      failOnStatusCode: false,
+    }).then((res) => {
+      expect(res.status).to.eq(404);
+    });
+  }
+);
+
+Then("the response should contain a paginated list of categories", () => {
+  expect(response.body).to.be.an("object");
+
+  // content validation
+  expect(response.body).to.have.property("content");
+  expect(response.body.content).to.be.an("array");
+  expect(response.body.content.length).to.be.greaterThan(0);
+  expect(response.body.content.length).to.be.at.most(10);
+
+  // pagination metadata
+  expect(response.body).to.have.property("pageable");
+  expect(response.body).to.have.property("totalElements");
+  expect(response.body).to.have.property("totalPages");
+});
+
+Then(
+  "each paginated category should have id, name, and parentName",
+  () => {
+    response.body.content.forEach((category: any) => {
+      expect(category).to.have.all.keys("id", "name", "parentName");
+      expect(category.id).to.be.a("number");
+      expect(category.name).to.be.a("string");
+      expect(category.parentName).to.be.a("string");
+    });
+  }
+);
+
+When(
+  "user sends a GET request to retrieve paginated categories with name {string}",
+  (name: string) => {
+    cy.request({
+      method: "GET",
+      url: "/api/categories/page",
+      qs: {
+        page: 0,
+        size: 10,
+        sortField: "id",
+        sortDir: "asc",
+        name,
+      },
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((res) => {
+      response = res;
+    });
+  }
+);
+
+Then(
+  "all paginated categories' names should include {string}",
+  (name: string) => {
+    response.body.content.forEach((category: any) => {
+      expect(category.name.toLowerCase()).to.include(name.toLowerCase());
+    });
+  }
+);
+
+Then("the response status should be 403", () => {
+  expect(response.status).to.eq(403);
+});
+
+Then(
+  "the response body should contain {string}",
+  (expectedMessage: string) => {
+    const actualMessage = response.body.message || response.body.error || "";
+    expect(actualMessage.toLowerCase()).to.include(expectedMessage.toLowerCase());
+  }
+);
