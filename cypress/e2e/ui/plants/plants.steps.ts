@@ -50,11 +50,13 @@ When('Admin clicks Save button', () => {
   AddPlantPage.submitForm();
 });
 
-
 Then(
   'Validation error "Plant name must be between 3 and 25 characters" appears in red below Plant Name field',
   () => {
-    AddPlantPage.getValidationErrorForField('name').should('contain', 'Plant name must be between 3 and 25 characters');
+    AddPlantPage.getValidationErrorForField('name').should(
+      'contain',
+      'Plant name must be between 3 and 25 characters'
+    );
   }
 );
 
@@ -109,7 +111,6 @@ Then('Observe validation message', () => {
   cy.get('.invalid-feedback').should('be.visible');
 });
 
-
 // Non-Admin User Scenarios
 When('Non-Admin user navigates to Plants list page {string}', (url: string) => {
   cy.visit(url);
@@ -130,7 +131,6 @@ Then('User is redirected to 403 Forbidden page', () => {
 Then('Access denied message is displayed', () => {
   PlantPage.checkAccessDeniedMessage();
 });
-
 
 When('Admin clicks {string}', (text: string) => {
   if (text === 'Manage Plants') {

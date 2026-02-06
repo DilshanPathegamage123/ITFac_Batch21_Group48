@@ -3,6 +3,32 @@ Feature: Admin Plant Management
   Background:
     Given Admin is logged in
 
+  Scenario: TC_ADMIN_PLANT_01 Admin opens Plant List 
+    Given Admin is logged in 
+    When Admin clicks "Manage Plants" 
+    Then Plant List page should load 
+    
+  Scenario: TC_ADMIN_PLANT_02 Add Plant button visible 
+    Given Admin is on Plant List page 
+    Then "Add a Plant" button should be visible 
+
+  Scenario: TC_ADMIN_PLANT_03 Verify Edit and Delete actions are available for Admin
+    Given Admin is on Plant List page
+    Then Edit and Delete buttons should be visible for each plant
+
+  Scenario: TC_ADMIN_PLANT_04 Verify Low stock badge display
+    Given Admin is logged in
+    And Admin is on Plant List page
+    Then Low stock badge should be displayed
+
+
+  Scenario: TC_ADMIN_PLANT_05 Verify sorting functionality
+    Given Admin is logged in
+    And Admin is on Plant List page
+    When Admin clicks Name column
+    Then Plants should be sorted by ascending order
+    Then Plants should be sorted by descending order
+
   Scenario: TC_ADMIN_PLANT_11 - Verify Cancel button functionality on Add Plant page
     Then Admin is on Add Plant page "/ui/plants/add"
     When Admin clicks Cancel button on Add Plant page
