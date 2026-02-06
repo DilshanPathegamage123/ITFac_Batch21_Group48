@@ -27,5 +27,8 @@
     "tabWidth": 2,
     "trailingComma": "es5",
     "printWidth": 100
+  },
+  "dependencies": {
+    "mysql2": "^3.16.3"
   }
 }
