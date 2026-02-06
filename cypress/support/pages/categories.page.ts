@@ -46,6 +46,13 @@ verifyUrl(expectedUrl: string) {
     return cy.get('.error-message');
   }
 
+  openEditFor(name: string) {
+  cy.contains('tbody tr', name)
+    .within(() => {
+      cy.get('a.btn-outline-primary').click();
+    });
+  }
+  
   search(name: string) {
     cy.get('input[name="name"]').clear().type(name);
     cy.contains('Search').click();
