@@ -1,23 +1,8 @@
 import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 import { apiLogin } from "../../../support/api/auth";
+import { setResponse, response, token } from "../common/common.steps";
 
-let response: Cypress.Response<any>;
-let token: string;
 let categoryIdToDelete: number;
-
-// Authenticate admin user
-Given("Admin user is authenticated via API", () => {
-  apiLogin("admin").then((t) => {
-    token = t;
-  });
-});
-
-// Authenticate non-admin user
-Given("Non-admin user is authenticated via API", () => {
-  apiLogin("user").then((t) => {
-    token = t;
-  });
-});
 
 // Precondition: At least one category exists
 Given("at least one category exists in the system", () => {
@@ -27,7 +12,7 @@ Given("at least one category exists in the system", () => {
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => {
     expect(res.body.length).to.be.greaterThan(0);
-    response = res;
+    setResponse(res);
   });
 });
 
@@ -40,7 +25,7 @@ Given("there is at least one matching category", () => {
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => {
     expect(res.body.some((cat: any) => cat.name.includes("Flower"))).to.be.true;
-    response = res;
+    setResponse(res);
   });
 });
 
@@ -84,7 +69,7 @@ When("user sends a GET request to retrieve all categories", () => {
     url: "/api/categories",
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => {
-    response = res;
+    setResponse(res);
   });
 });
 
@@ -97,7 +82,7 @@ When(
       qs: { name },
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) => {
-      response = res;
+      setResponse(res);
     });
   }
 );
@@ -111,7 +96,7 @@ When("user sends DELETE request to delete the category", () => {
     },
     failOnStatusCode: false,
   }).then((res) => {
-    response = res;
+    setResponse(res);
   });
 });
 
@@ -129,7 +114,7 @@ When("user sends a GET request to retrieve paginated categories", () => {
       Authorization: `Bearer ${token}`,
     },
   }).then((res) => {
-    response = res;
+    setResponse(res);
   });
 }
 );
@@ -169,10 +154,6 @@ Then("each category should have id, name, and parentName", () => {
     expect(category.name).to.be.a("string");
     expect(category.parentName).to.be.a("string");
   });
-});
-
-Then("the response status should be 204", () => {
-  expect(response.status).to.eq(204);
 });
 
 Then("the response body should be empty", () => {
@@ -237,7 +218,7 @@ When(
       },
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) => {
-      response = res;
+      setResponse(res);
     });
   }
 );
@@ -250,10 +231,6 @@ Then(
     });
   }
 );
-
-Then("the response status should be 403", () => {
-  expect(response.status).to.eq(403);
-});
 
 Then(
   "the response body should contain {string}",
