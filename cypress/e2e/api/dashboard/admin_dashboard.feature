@@ -1,7 +1,7 @@
 Feature: Admin User – Dashboard - API
 
   Background:
-    Given Admin is authenticated via API
+    Given Admin user is authenticated via API
 
   Scenario: TC_ADMIN_DASH_04 - Verify Get Plants summary API for Admin
     Given Admin authentication token is valid and plants exist in the system
