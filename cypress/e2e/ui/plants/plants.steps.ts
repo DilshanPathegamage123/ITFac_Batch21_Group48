@@ -63,7 +63,11 @@ When('Admin enters Plant Name with 2 characters \\(e.g., "AB")', () => {
 });
 
 When('Admin fills other fields with valid data', () => {
-  AddPlantPage.categorySelect().select('4');
+  AddPlantPage.categorySelect().find('option').eq(1).then(($option) => {
+    const value = $option.val() as string;
+    AddPlantPage.categorySelect().select(value);
+  });
+  
   AddPlantPage.priceInput().clear().type('50');
   AddPlantPage.quantityInput().clear().type('20');
 });
