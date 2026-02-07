@@ -36,3 +36,40 @@ Feature: Non-Admin User – Categories - API
     When user sends DELETE request to delete the category
     Then the response status should be 403
     And the response body should contain "Forbidden"
+
+  Scenario: TC_USER_CAT_21 - Verify when non-admin deleting non-existing category returns 403
+    Given compute a non-existing category ID
+    When user sends DELETE request to delete the category
+    Then the response status should be 403
+
+  Scenario: TC_USER_CAT_22 - Verify non-admin user receives empty paginated result for non-matching name
+   When user sends a GET request to retrieve paginated categories with name "___NO_MATCH___"
+   Then the response status should be 200
+   And the paginated response content should be empty
+
+
+  Scenario: TC_USER_CAT_16 - Verify non-admin user cannot create categories
+    When user sends a POST request to create a new category
+    Then the response status should be 403
+    And the response body should contain "Forbidden"
+
+  Scenario: TC_USER_CAT_17 - Verify non-admin user cannot update existing categories
+    Given Category with ID=292 exists
+    When user sends a PUT request to update the category with ID=292
+    Then the response status should be 403
+    And the response body should contain "Forbidden"
+
+  Scenario: TC_USER_CAT_18 - Verify non-admin user can retrieve all sub-categories
+    Given at least one sub-category exists in the system
+    When user sends a GET request to retrieve all sub-categories
+    Then the response status should be 200
+    And the response should contain only sub-categories
+ 
+  Scenario: TC_USER_CAT_19 - Verify non-admin user can successfully retrieve main categories
+    When user sends GET request to retrieve all main categories
+    Then the response should contain a list of main categories
+
+  @oneTime
+  Scenario: TC_USER_CAT_20 - Verify non-admin user receives empty array when no main categories exist
+    When user sends GET request to retrieve all main categories
+    Then the response should be an empty array
