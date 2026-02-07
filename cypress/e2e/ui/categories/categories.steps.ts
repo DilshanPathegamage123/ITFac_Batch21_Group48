@@ -46,10 +46,6 @@ Then('at least one category should be displayed in the categories table', () => 
     .should('be.visible');
 });
 
-Then('no categories should exist in the system', () => {
-  CategoriesPage.categoryRows().should('have.length', 0);
-});
-
 Then('{string} message should be displayed in the categories table', (message: string) => {
   CategoriesPage.emptyStateMessage()
     .should('contain.text', message);

@@ -2,7 +2,7 @@ import { Given, Then } from "@badeball/cypress-cucumber-preprocessor";
 import { apiLogin } from "../../../support/api/auth";
 
 export let token: string;
-// This will be set by individual step files
+export let malformedToken: string;
 export let response: Cypress.Response<any>;
 
 export const setResponse = (res: Cypress.Response<any>) => {
@@ -23,19 +23,14 @@ Given("Non-admin user is authenticated via API", () => {
   });
 });
 
-// Common assertion steps
-Then("the response status should be 200", () => {
-  expect(response.status).to.eq(200);
+Given('User has a invalid authentication token', () => {
+  malformedToken = 'malformed_token_!@#$%';
 });
 
-Then("the response status should be 204", () => {
-  expect(response.status).to.eq(204);
+Given('User is not authenticated', () => {
+  token = ''; 
 });
 
-Then("the response status should be 401", () => {
-  expect(response.status).to.eq(401);
-});
-
-Then("the response status should be 403", () => {
-  expect(response.status).to.eq(403);
+Then("the response status should be {int}", (status: number) => {
+  expect(response.status).to.eq(status);
 });

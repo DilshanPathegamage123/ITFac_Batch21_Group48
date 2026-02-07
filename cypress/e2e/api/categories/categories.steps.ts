@@ -3,6 +3,15 @@ import { apiLogin } from "../../../support/api/auth";
 import { setResponse, response, token } from "../common/common.steps";
 
 let categoryIdToDelete: number;
+let createdCategoryName: string;
+let createdCategoryId: number;
+let categoryIdToUpdate: number;
+let updatedCategoryName: string;
+let categoryNameToRetrieve: string;
+let categoryIdToRetrieve: number;
+let subCategoryParentId: number;
+let nonExistingId: number;
+let attemptedCategoryName: string;
 
 // Precondition: At least one category exists
 Given("at least one category exists in the system", () => {
@@ -62,6 +71,19 @@ Given("an existing category is available for non-admin delete test", () => {
   });
 });
 
+// Step to dynamically compute a non-existing ID
+Given("compute a non-existing category ID", () => {
+  cy.request({
+    method: "GET",
+    url: "/api/categories",
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => {
+    const existingIds = res.body.map((c: any) => c.id);
+    const maxId = Math.max(...existingIds);
+    categoryIdToDelete = maxId + 1;
+  });
+});
+
 // Main requests
 When("user sends a GET request to retrieve all categories", () => {
   cy.request({
@@ -118,6 +140,302 @@ When("user sends a GET request to retrieve paginated categories", () => {
   });
 }
 );
+
+When(
+  "unauthenticated user sends {string} request to {string}",
+  (method: string, endpoint: string) => {
+    cy.request({
+      method,
+      url: endpoint,
+      failOnStatusCode: false,
+    }).then((res) => {
+      setResponse(res);
+    });
+  }
+);
+
+When(
+  "user sends a GET request to retrieve paginated categories sorted by parentName {string}",
+  (sortDir: string) => {
+    cy.request({
+      method: "GET",
+      url: "/api/categories/page",
+      qs: {
+        page: 0,
+        size: 10,
+        sortField: "parentName",
+        sortDir,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((res) => {
+      setResponse(res);
+    });
+  }
+);
+
+
+
+// Main request - Create category
+When("user sends a POST request to create a new main category", () => {
+createdCategoryName = `CAT${Cypress._.random(100, 999)}`;
+
+  cy.request({
+    method: "POST",
+    url: "/api/categories",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: {
+      name: createdCategoryName,
+      parent: null,
+      subCategories: [],
+    },
+  }).then((res) => {
+    setResponse(res);
+    createdCategoryId = res.body.id;
+  });
+});
+
+//Update Category
+Given("Category which is going to be updated exists in the system", () => {
+  const name = `CAT${Cypress._.random(100, 999)}`;
+
+  cy.request({
+    method: "POST",
+    url: "/api/categories",
+    headers: { Authorization: `Bearer ${token}` },
+    body: {
+      name,
+      parent: null,
+      subCategories: [],
+    },
+  }).then((res) => {
+    expect(res.status).to.eq(201);
+    categoryIdToUpdate = res.body.id;
+  });
+});
+
+
+When("user sends PUT request to update the category", () => {
+  updatedCategoryName = `UPD${Cypress._.random(100, 999)}`;
+
+  cy.request({
+    method: "PUT",
+    url: `/api/categories/${categoryIdToUpdate}`,
+    headers: { Authorization: `Bearer ${token}` },
+    body: {
+      name: updatedCategoryName,
+      parentId: null,
+    },
+  }).then((res) => {
+    setResponse(res);
+  });
+});
+
+
+// Precondition: Create a category for retrieval
+Given("a category exists in the system", () => {
+  categoryNameToRetrieve = `CAT${Cypress._.random(100, 999)}`;
+
+  cy.request({
+    method: "POST",
+    url: "/api/categories",
+    headers: { Authorization: `Bearer ${token}` },
+    body: {
+      name: categoryNameToRetrieve,
+      parent: null,
+      subCategories: [],
+    },
+  }).then((res) => {
+    expect(res.status).to.eq(201);
+    categoryIdToRetrieve = res.body.id;
+  });
+});
+
+When("user sends a GET request to retrieve the category by ID", () => {
+  cy.request({
+    method: "GET",
+    url: `/api/categories/${categoryIdToRetrieve}`,
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => {
+    setResponse(res);
+  });
+});
+
+// Sub-category precondition
+Given("at least one sub-category exists in the system", () => {
+  const parentName = `PARENT_${Cypress._.random(100, 999)}`;
+  const childName = `CHILD_${Cypress._.random(100, 999)}`;
+
+  // create parent
+  cy.request({
+    method: "POST",
+    url: "/api/categories",
+    headers: { Authorization: `Bearer ${token}` },
+    body: {
+      name: parentName,
+      parent: null,
+    },
+  }).then((parentRes) => {
+    expect(parentRes.status).to.eq(201);
+    subCategoryParentId = parentRes.body.id;
+
+    // create sub-category
+    return cy.request({
+      method: "POST",
+      url: "/api/categories",
+      headers: { Authorization: `Bearer ${token}` },
+      body: {
+        name: childName,
+        parent: { id: subCategoryParentId }, 
+      },
+    });
+  }).then((childRes) => {
+    expect(childRes.status).to.eq(201);
+  });
+});
+
+When("user sends a GET request to retrieve all sub-categories", () => {
+  cy.request({
+    method: "GET",
+    url: "/api/categories/sub-categories",
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => {
+    setResponse(res);
+  });
+});
+
+// Negative test: Update non-existent category
+When("user sends PUT request to update non-existent category", () => {
+  nonExistingId = Date.now();
+
+  cy.request({
+    method: "PUT",
+    url: `/api/categories/${nonExistingId}`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: {
+      name: "UpdatedName",
+      parentId: null,
+    },
+    failOnStatusCode: false,
+  }).then((res) => {
+    setResponse(res);
+  });
+});
+
+
+
+//User
+// Attempt to create category without admin privileges
+When("user sends a POST request to create a new category", () => {
+  attemptedCategoryName = `CAT_${Cypress._.random(1000, 9999)}`;
+
+  cy.request({
+    method: "POST",
+    url: "/api/categories",
+    headers: { Authorization: `Bearer ${token}` },
+    body: {
+      id: 0,
+      name: attemptedCategoryName,
+      parent: null,
+      subCategories: [],
+    },
+    failOnStatusCode: false,
+  }).then((res) => {
+    setResponse(res);
+  });
+});
+
+// Attempt to update category without admin privileges
+Given("Category with ID={int} exists", (categoryId: number) => {
+  cy.request({
+    method: "GET",
+    url: `/api/categories/${categoryId}`,
+    headers: { Authorization: `Bearer ${token}` },
+    failOnStatusCode: false,
+  }).then((res) => {
+    expect(res.status).to.eq(200);
+  });
+});
+
+// PUT request to update category
+When("user sends a PUT request to update the category with ID=292", () => {
+  cy.request({
+    method: "PUT",
+    url: `/api/categories/2`,
+    headers: { Authorization: `Bearer ${token}` },
+    body: {
+      name: `UPDATED_CAT_${Cypress._.random(1000, 9999)}`,
+      parentId: null,
+    },
+    failOnStatusCode: false,
+  }).then((res) => {
+    setResponse(res);
+  });
+});
+
+
+When("user sends a GET request to retrieve all sub-categories", () => {
+  cy.request({
+    method: "GET",
+    url: "/api/categories/sub-categories",
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => {
+    setResponse(res);
+
+    // Optional: assert that the response is an array with at least 1 element
+    expect(res.status).to.eq(200);
+    expect(res.body).to.be.an("array");
+    expect(res.body.length).to.be.greaterThan(0);
+  });
+});
+
+Then("the response should contain only sub-categories", () => {
+  expect(response.body).to.be.an("array");
+  expect(response.body.length).to.be.greaterThan(0);
+
+  response.body.forEach((item: any) => {
+    expect(item).to.have.property("id").that.is.a("number");
+    expect(item).to.have.property("name").that.is.a("string");
+    expect(item).to.have.property("parent").that.is.a("string");
+    expect(item).to.have.property("subCategories").that.is.an("array");
+  });
+});
+
+When("user sends GET request to retrieve all main categories", () => {
+  cy.request({
+    method: "GET",
+    url: "/api/categories/main",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }).then((res) => {
+    setResponse(res);
+  });
+});
+
+Given("no main categories exist in the system", () => {
+  cy.request({
+    method: "GET",
+    url: "/api/categories/main",
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => {
+    res.body.forEach((cat: any) => {
+      cy.request({
+        method: "DELETE",
+        url: `/api/categories/${cat.id}`,
+        headers: { Authorization: `Bearer ${token}`
+       },
+      });
+    });
+  });
+});
+
+
 
 
 // Assertions
@@ -232,6 +550,12 @@ Then(
   }
 );
 
+Then("the paginated response content should be empty", () => {
+  expect(response.body).to.have.property("content");
+  expect(response.body.content).to.be.an("array");
+  expect(response.body.content.length).to.eq(0);
+});
+
 Then(
   "the response body should contain {string}",
   (expectedMessage: string) => {
@@ -239,3 +563,168 @@ Then(
     expect(actualMessage.toLowerCase()).to.include(expectedMessage.toLowerCase());
   }
 );
+
+Then(
+  "the paginated categories should be sorted by parentName in ascending order",
+  () => {
+    const parentNames = response.body.content.map(
+      (c: any) => c.parentName === "-" ? "" : c.parentName
+    );
+
+    const sorted = [...parentNames].sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" })
+    );
+
+    expect(parentNames).to.deep.equal(sorted);
+  }
+);
+
+Then(
+  "the paginated categories should be sorted by parentName in descending order",
+  () => {
+    const parentNames = response.body.content.map(
+      (c: any) => c.parentName === "-" ? "" : c.parentName
+    );
+
+    const sorted = [...parentNames]
+      .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+      .reverse();
+
+    expect(parentNames).to.deep.equal(sorted);
+  }
+);
+
+
+
+
+//Admin
+//Create category assertions
+Then(
+  "the response should contain the created category with id, name, parent, and subCategories",
+  () => {
+    expect(response.body).to.be.an("object");
+
+    expect(response.body).to.have.all.keys(
+      "id",
+      "name",
+      "parent",
+      "subCategories"
+    );
+
+    expect(response.body.id).to.be.a("number");
+    expect(response.body.name).to.eq(createdCategoryName);
+    expect(response.body.parent).to.be.null;
+    expect(response.body.subCategories).to.be.an("array");
+  }
+);
+
+afterEach(() => {
+  if (createdCategoryId) {
+    cy.request({
+      method: "DELETE",
+      url: `/api/categories/${createdCategoryId}`,
+      headers: { Authorization: `Bearer ${token}` },
+      failOnStatusCode: false,
+    });
+  }
+});
+
+
+//Update category assertions
+Then("the response should contain the updated category details", () => {
+  expect(response.body).to.be.an("object");
+
+    expect(response.body).to.have.property("id").that.is.a("number");
+  expect(response.body).to.have.property("name").that.is.a("string");
+
+  // id and name should match the updated category
+  expect(response.body.id).to.eq(categoryIdToUpdate);
+  expect(response.body.name).to.eq(updatedCategoryName);
+
+  // parent might be null or returned as parentId
+  if ("parent" in response.body) {
+    expect(response.body.parent).to.be.null;
+  } else if ("parentId" in response.body) {
+    expect(response.body.parentId).to.be.null;
+  }
+
+  // subCategories may not be returned
+  if ("subCategories" in response.body) {
+    expect(response.body.subCategories).to.be.an("array");
+  }
+});
+
+//Retrieve category by ID assertions
+Then("the response should contain the requested category details", () => {
+  expect(response.status).to.eq(200);
+
+  expect(response.body).to.include.keys(
+    "id",
+    "name",
+    "parent",
+    "subCategories"
+  );
+
+  expect(response.body.id).to.be.a("number");
+  expect(response.body.name).to.be.a("string");
+  expect(response.body.subCategories).to.be.an("array");
+});
+
+
+// Sub-category assertions
+Then("the response should contain only sub-categories", () => {
+  expect(response.body).to.be.an("array");
+  expect(response.body.length).to.be.greaterThan(0);
+
+  response.body.forEach((item: any) => {
+    expect(item).to.have.property("id");
+    expect(item).to.have.property("name");
+  });
+});
+
+// Negative test assertions
+Then(
+  "the response body should contain error message {string}",
+  (message: string) => {
+    expect(response.body).to.have.property("status");
+    expect(response.body).to.have.property("error");
+    expect(response.body).to.have.property("message");
+
+    expect(response.body.message.toLowerCase()).to.include(
+      message.toLowerCase()
+    );
+  }
+);
+
+
+// Assertion: response contains only sub-categories
+Then("the response should contain only sub-categories", () => {
+  expect(response.status).to.eq(200);
+  expect(response.body).to.be.an("array");
+  expect(response.body.length).to.be.greaterThan(0);
+
+  response.body.forEach((item: any) => {
+    expect(item).to.have.property("id").that.is.a("number");
+    expect(item).to.have.property("name").that.is.a("string");
+    expect(item).to.have.property("parent").that.is.a("string");
+    expect(item).to.have.property("subCategories").that.is.an("array");
+  });
+});
+
+
+Then("the response should contain a list of main categories", () => {
+  expect(response.status).to.eq(200);
+  expect(response.body).to.be.an("array");
+
+  response.body.forEach((cat: any) => {
+    expect(cat).to.have.property("id");
+    expect(cat).to.have.property("name");
+    expect(cat).to.have.property("subCategories");
+
+    expect(cat.id).to.be.a("number");
+    expect(cat.name).to.be.a("string");
+    expect(cat.subCategories).to.be.an("array");
+  });
+});
+
+
