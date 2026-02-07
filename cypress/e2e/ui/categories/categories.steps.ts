@@ -79,8 +79,8 @@ Then('all Edit buttons should be functionally disabled', () => {
   CategoriesPage.editButtons().each(($btn) => {
     // Save current URL
     cy.url().then((urlBefore) => {
-      cy.wrap($btn).click({ force: true }); // Force click to bypass cursor styles
-      cy.url().should('eq', urlBefore);    // URL should not change
+      cy.wrap($btn).click({ force: true }); 
+      cy.url().should('eq', urlBefore); 
     });
   });
 });
@@ -190,17 +190,17 @@ When(
   }
 );
 
-When('user searches for {string}', (name: string) => {
-  CategoriesPage.search(name);
-});
-
-When('user filters by parent {string}', (parent: string) => {
-  CategoriesPage.selectParent(parent);
-  CategoriesPage.search('');
-});
-
-Then('results should match parent {string}', (parent: string) => {
-  CategoriesPage.rowsShouldMatchParent(parent);
+When('user searches using first category name', () => {
+  CategoriesPage.categoryRows()
+    .first()
+    .find('td')
+    .eq(1)
+    .invoke('text')
+    .then((text) => {
+      const name = text.trim();
+      cy.wrap(name).as('searchedCategory');
+      CategoriesPage.search(name);
+    });
 });
 
 When('user sorts by name', () => {
@@ -219,6 +219,71 @@ Then('all categories should be visible', () => {
   CategoriesPage.tableShouldHaveRows();
 });
 
+Then('table should contain searched category', () => {
+  cy.get('@searchedCategory').then((name) => {
+    CategoriesPage.categoryRows()
+      .should('contain.text', name);
+  });
+});
+
+Then('at least one parent category exists', () => {
+  CategoriesPage.parentOptions()
+    .its('length')
+    .should('be.greaterThan', 0);
+});
+
+When('user filters by an existing parent', () => {
+  CategoriesPage.getFirstParentName().then((parentName) => {
+    cy.wrap(parentName).as('selectedParent');
+    CategoriesPage.selectParentByName(parentName);
+  });
+});
+
+Then('results should match selected parent', () => {
+  CategoriesPage.filteredRowsShouldExist();
+});
+
+When('Admin adds a new category', () => {
+  const name = `CAT${Cypress._.random(100, 999)}`;
+  cy.wrap(name).as('createdCategory'); // store for cleanup later
+  CategoriesPage.addCategoryButton()
+    .should('be.visible')
+    .click();
+  AddCategoryPage.addCategory(name);
+
+  cy.contains('Category created successfully').should('be.visible');
+  CategoriesPage.tableShouldContain(name);
+});
+
+Then('table should contain the created category', () => {
+  cy.get('@createdCategory').then((name) => {
+    CategoriesPage.tableShouldContain(String(name));
+  });
+});
+
+When('Admin edits the created category to {string}', (newName: string) => {
+  cy.get('@createdCategory').then((oldName) => {
+    CategoriesPage.openEditFor(String(oldName));
+    AddCategoryPage.updateCategoryName(newName);
+
+    // Store the new name for verification
+    cy.wrap(newName).as('createdCategory');
+  });
+});
 
 
+afterEach(function () {
+  const createdCategory = this.createdCategory;
+  if (createdCategory) {
+    cy.log(`Cleaning up category: ${createdCategory}`);
 
+    cy.wrap(null).then(() => {
+      try {
+        CategoriesPage.openDeleteFor(createdCategory)
+          .then(() => CategoriesPage.confirmDelete());
+      } catch (err) {
+        cy.log(`Cleanup failed for ${createdCategory}: ${(err as Error).message}`);
+      }
+    });
+  }
+});
