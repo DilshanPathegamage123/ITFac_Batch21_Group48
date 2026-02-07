@@ -14,7 +14,7 @@ When('Admin clicks Cancel button on Add Plant page', () => {
 });
 
 Then(
-  'User is navigated back to Plants list page {string} and no new plant is created; entered data is discarded',
+  'User is navigated back to Plants list page {string}',
   (expectedUrl: string) => {
     AddPlantPage.verifyUrl(expectedUrl);
     cy.url().should('not.include', '/ui/plants/add');
@@ -70,10 +70,6 @@ When('Admin fills other fields with valid data', () => {
   
   AddPlantPage.priceInput().clear().type('50');
   AddPlantPage.quantityInput().clear().type('20');
-});
-
-Then('Admin is on Add Plant page', () => {
-  AddPlantPage.pageTitle().should('contain', 'Add Plant');
 });
 
 Then('Leave all fields empty', () => {
