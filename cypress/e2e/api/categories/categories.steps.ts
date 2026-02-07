@@ -84,6 +84,20 @@ Given("compute a non-existing category ID", () => {
   });
 });
 
+// Precondition: Existing category for non-admin update test
+Given("an existing category is available for update", () => {
+  cy.request({
+    method: "GET",
+    url: "/api/categories",
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => {
+    expect(res.status).to.eq(200);
+    expect(res.body.length).to.be.greaterThan(0);
+
+    categoryIdToUpdate = res.body[0].id;
+  });
+});
+
 // Main requests
 When("user sends a GET request to retrieve all categories", () => {
   cy.request({
@@ -338,14 +352,13 @@ Given("Category with ID={int} exists", (categoryId: number) => {
   });
 });
 
-// PUT request to update category
-When("user sends a PUT request to update the category with ID=292", () => {
+When("user sends a PUT request to update the category", () => {
   cy.request({
     method: "PUT",
-    url: `/api/categories/2`,
+    url: `/api/categories/${categoryIdToUpdate}`,
     headers: { Authorization: `Bearer ${token}` },
     body: {
-      name: `UPDATED_CAT_${Cypress._.random(1000, 9999)}`,
+      name: `UPDATED_${Date.now()}`,
       parentId: null,
     },
     failOnStatusCode: false,
@@ -558,8 +571,6 @@ Then(
 );
 
 
-
-
 //Admin
 //Create category assertions
 Then(
@@ -633,18 +644,6 @@ Then("the response should contain the requested category details", () => {
   expect(response.body.subCategories).to.be.an("array");
 });
 
-
-// Sub-category assertions
-// Then("the response should contain only sub-categories", () => {
-//   expect(response.body).to.be.an("array");
-//   expect(response.body.length).to.be.greaterThan(0);
-
-//   response.body.forEach((item: any) => {
-//     expect(item).to.have.property("id");
-//     expect(item).to.have.property("name");
-//   });
-// });
-
 // Negative test assertions
 Then(
   "the response body should contain error message {string}",
@@ -658,7 +657,6 @@ Then(
     );
   }
 );
-
 
 // Assertion: response contains only sub-categories
 Then("the also response should contain only sub-categories", () => {

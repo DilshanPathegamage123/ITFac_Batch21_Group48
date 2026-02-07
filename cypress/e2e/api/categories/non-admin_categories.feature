@@ -48,8 +48,8 @@ Feature: Non-Admin User – Categories - API
     And the response body should contain "Forbidden"
 
   Scenario: TC_USER_CAT_17 - Verify non-admin user cannot update existing categories
-    Given Category with ID=292 exists
-    When user sends a PUT request to update the category with ID=292
+    And an existing category is available for update
+    When user sends a PUT request to update the category
     Then the response status should be 403
     And the response body should contain "Forbidden"
 
