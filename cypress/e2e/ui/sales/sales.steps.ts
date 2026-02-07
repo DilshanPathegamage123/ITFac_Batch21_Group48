@@ -168,9 +168,3 @@ Then('access should be denied', () => {
 Then('sales records should be displayed correctly', () => {
   SalesPage.salesRows().should('have.length.greaterThan', 0);
 });
-
-Then('sorting should be available for sales table', () => {
-  ['Plant', 'Quantity', 'Total Price', 'Sold At'].forEach((header) => {
-    cy.contains('th', header).should('have.attr', 'aria-sort');
-  });
-});

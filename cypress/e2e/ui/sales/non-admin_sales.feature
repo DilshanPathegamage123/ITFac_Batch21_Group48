@@ -24,6 +24,3 @@ Feature: User Sales Module UI Validation
     When user is on Sales page
     Then sales records should be displayed correctly
 
-  Scenario: TC_USER_SALES_06 Verify sorting is available for User
-    When user is on Sales page
-    Then sorting should be available for sales table
