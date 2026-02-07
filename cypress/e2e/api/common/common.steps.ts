@@ -23,7 +23,7 @@ Given("Non-admin user is authenticated via API", () => {
   });
 });
 
-Given('User has a invalid authentication token', () => {
+Given('User has an invalid authentication token', () => {
   malformedToken = 'malformed_token_!@#$%';
 });
 
