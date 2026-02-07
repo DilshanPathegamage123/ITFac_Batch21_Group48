@@ -36,10 +36,10 @@ export default defineConfig({
             // Force a connection check
             connection.connect((err : any) => {
               if (err) {
-                console.error('❌ DB Connection Failed:', err.message);
+                console.error('DB Connection Failed:', err.message);
                 return reject(err);
               }
-              console.log('✅ Database Connected Successfully!');
+              console.log('Database Connected Successfully!');
             });
 
             connection.query(query, (error : any, results : any) => {
