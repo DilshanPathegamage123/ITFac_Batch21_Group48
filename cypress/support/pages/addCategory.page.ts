@@ -18,8 +18,8 @@ class AddCategoryPage {
   }
 
   updateCategoryName(name: string) {
-  this.nameInput().clear().type(name);
-  this.save();
+    this.nameInput().clear().type(name);
+    return this.save(); 
   }
 
 }

@@ -25,26 +25,29 @@ Feature: Non-Admin User – Categories
 
 
 
-  Scenario: TC_USER_CAT_11 Search category
+  Scenario: TC_USER_CAT_11 - Verify non-admin user can successfully Search by category
     Given User is on Categories page
-    When user searches for "Wildlife"
-    Then table should contain "Wildlife"
+    Then categories should exist in the system
+    When user searches using first category name
+    Then table should contain searched category
 
-  Scenario: TC_USER_CAT_12 Filter by parent
+
+  Scenario: TC_USER_CAT_12 - Verify non-admin user can successfully Filter by parent
     Given User is on Categories page
-    When user filters by parent "Animals"
-    Then results should match parent
+    Then at least one parent category exists
+    When user filters by an existing parent
+    Then results should match selected parent
 
-  Scenario: TC_USER_CAT_13 Sort by name
+  Scenario: TC_USER_CAT_13 - Verify non-admin user can successfully Sort by name
     Given User is on Categories page
     When user sorts by name
     Then categories should be sorted
 
-  Scenario: TC_USER_CAT_14 Reset filters
+  Scenario: TC_USER_CAT_14 - Verify non-admin user can successfully Reset the filters
     Given User is on Categories page
     When user clicks reset
     Then all categories should be visible
 
-  Scenario: TC_USER_CAT_15 Verify heading
+  Scenario: TC_USER_CAT_15 Verify categories page heading
     Given User is on Categories page
     Then page heading should be "Categories"

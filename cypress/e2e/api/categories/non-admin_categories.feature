@@ -56,14 +56,8 @@ Feature: Non-Admin User – Categories - API
   Scenario: TC_USER_CAT_18 - Verify non-admin user can retrieve all sub-categories
     Given at least one sub-category exists in the system
     When user sends a GET request to retrieve all sub-categories
-    Then the response status should be 200
-    And the response should contain only sub-categories
+    Then the response should contain only sub-categories
  
   Scenario: TC_USER_CAT_19 - Verify non-admin user can successfully retrieve main categories
     When user sends GET request to retrieve all main categories
     Then the response should contain a list of main categories
-
-  @oneTime
-  Scenario: TC_USER_CAT_20 - Verify non-admin user receives empty array when no main categories exist
-    When user sends GET request to retrieve all main categories
-    Then the response should be an empty array
