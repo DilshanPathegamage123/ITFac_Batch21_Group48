@@ -4,6 +4,7 @@ import {
   addCucumberPreprocessorPlugin,
 } from "@badeball/cypress-cucumber-preprocessor";
 import createEsbuildPlugin from "@badeball/cypress-cucumber-preprocessor/esbuild";
+const mysql = require('mysql2');
 
 export default defineConfig({
   e2e: {
@@ -23,6 +24,36 @@ export default defineConfig({
           tsconfig: "tsconfig.json",
         })
       );
+
+      on('task', {
+        queryDb: (query) => {
+          const connection = mysql.createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: 'Malinga2001',
+            database: 'qa_training',
+          });
+
+          return new Promise((resolve, reject) => {
+            // Force a connection check
+            connection.connect((err : any) => {
+              if (err) {
+                console.error('DB Connection Failed:', err.message);
+                return reject(err);
+              }
+              console.log('Database Connected Successfully!');
+            });
+
+            connection.query(query, (error : any, results : any) => {
+              if (error) reject(error);
+              else {
+                connection.end();
+                resolve(results);
+              }
+            });
+          });
+        },
+      });
 
       return config;
     },
