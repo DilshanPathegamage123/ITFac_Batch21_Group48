@@ -32,7 +32,7 @@ Feature: Regular User – Plants - API
     When User sends POST request to create plant with valid data
     Then the response status should be 403
     
-  @cleanup
+  @DeletePlant
   Scenario: TC_USER_PLANT_14 - Verify User cannot update plant via API
     Given User is authenticated and plant exists
     When User sends PUT request to update plant
