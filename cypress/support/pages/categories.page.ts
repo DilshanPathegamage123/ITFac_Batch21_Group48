@@ -93,9 +93,51 @@ verifyUrl(expectedUrl: string) {
   });
 }
 
+parentDropdown() {
+  return cy.get('select[name="parentId"]');
+}
+
+parentOptions() {
+  return this.parentDropdown().find('option').not('[value=""]');
+}
+
+getFirstParentName() {
+  return this.parentOptions()
+    .first()
+    .invoke('text')
+    .then(text => text.trim());
+}
+
+selectParentByName(parentName: string) {
+  this.parentDropdown()
+    .should('be.visible')
+    .select(parentName);
+}
+
+filteredRowsShouldExist() {
+  cy.get('tbody tr').its('length').should('be.greaterThan', 0);
+}
+
+openDeleteFor(name: string) {
+  return cy.contains('tbody tr', name)  
+    .within(() => {
+      cy.get('button.btn-outline-danger').click();
+    });
+}
+
+confirmDelete() {
+  return cy.get('#deleteModal')
+    .should('be.visible')
+    .within(() => {
+      cy.contains('Confirm').click();
+    })
+    .then(() => {
+      cy.contains('Category deleted successfully').should('be.visible');
+    });
 }
 
 
 
+}
 
 export default new CategoriesPage();
