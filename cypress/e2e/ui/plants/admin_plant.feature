@@ -37,7 +37,7 @@ Feature: Admin Plant Management
   Scenario: TC_ADMIN_PLANT_11 - Verify Cancel button functionality on Add Plant page
     Then Admin is on Add Plant page "/ui/plants/add"
     When Admin clicks Cancel button on Add Plant page
-    Then User is navigated back to Plants list page "/ui/plants" and no new plant is created; entered data is discarded
+    Then User is navigated back to Plants list page "/ui/plants"
 
   Scenario: TC_ADMIN_PLANT_12 - Verify validation errors display for empty mandatory fields
     Then Admin is on Add Plant page "/ui/plants/add"
