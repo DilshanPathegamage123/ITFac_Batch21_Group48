@@ -27,8 +27,8 @@ export default defineConfig({
         queryDb: (query) => {
           const connection = mysql.createConnection({
             host: 'localhost',
-            user: 'root',
-            password: 'Malinga2001',
+            user: 'qa_user',
+            password: 'DilshanQA2000',
             database: 'qa_training',
           });
 
