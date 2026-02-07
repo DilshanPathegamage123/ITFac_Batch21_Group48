@@ -12,8 +12,9 @@ Feature: Regular User – Plants - API
     Then response status should be 403
 
   Scenario: TC_USER_PLANT_08 Search by name
-    When User searches plant by name {string}
-    Then response status should be 200
+    When User searches plant by name "Anthurium Plant"
+    Then response should contain plants
+
 
   Scenario: TC_USER_PLANT_09 Filter plants by category
     When User filters plants by category 3
@@ -22,8 +23,9 @@ Feature: Regular User – Plants - API
 
 
   Scenario: TC_USER_PLANT_10 Invalid search
-    When User searches plant by name "INVALID_123"
+    When User searches plant by invalid name "INVALID_123"
     Then the search response should be empty
+
 
 
 
