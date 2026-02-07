@@ -1,6 +1,6 @@
 import { Given, When, Then, After } from '@badeball/cypress-cucumber-preprocessor';
 import { apiLogin } from '../../../support/api/auth';
-import { setResponse, response ,token } from '../common/common.steps';
+import { setResponse, response ,token as commontoken } from '../common/common.steps';
 
  let token: string;
 let categoryId: number;
@@ -15,7 +15,7 @@ When('Admin requests plant list', () => {
   cy.request({
     method: 'GET',
     url: '/api/plants',
-    headers: { Authorization: `Bearer ${token}` }, 
+    headers: { Authorization: `Bearer ${commontoken}` }, 
   }).then((res) => {
     setResponse(res); 
   });
@@ -42,7 +42,7 @@ When('Admin requests plant list with page {int} and size {int}', (page: number, 
   cy.request({
     method: 'GET',
     url: `/api/plants?page=${page}&size=${size}`,
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${commontoken}` },
   }).then((res) => {
     setResponse(res);
   });
@@ -66,7 +66,7 @@ When('Admin searches plant by name {string}', (name: string) => {
   cy.request({
     method: 'GET',
     url: `/api/plants/search?name=${name}`,
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${commontoken}` },
   }).then((res) => {
     setResponse(res);
   });
@@ -87,7 +87,7 @@ When('Admin filters plants by category {int}', (categoryId: number) => {
   cy.request({
     method: 'GET',
     url: `/api/plants?categoryId=${categoryId}`,
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${commontoken}` },
   }).then((res) => {
     setResponse(res);
   });
@@ -367,7 +367,7 @@ When("User requests plant list", () => {
   cy.request({
     method: "GET",
     url: "/api/plants",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${commontoken}` },
   }).then((res) => setResponse(res));
 });
 
@@ -390,7 +390,7 @@ When("User tries to create plant", () => {
   cy.request({
     method: "POST",
     url: "/api/plants/category/1", 
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${commontoken}` },
     body: plantPayload,
     failOnStatusCode: false, 
   }).then((res) => setResponse(res));
@@ -407,7 +407,7 @@ When('User searches plant by name "{string}"', (name: string) => {
   cy.request({
     method: "GET",
     url: `/api/plants/search?name=${encodeURIComponent(name)}`,
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${commontoken}` },
     failOnStatusCode: false, 
   }).then((res) => setResponse(res));
 });
@@ -423,7 +423,7 @@ When('User filters plants by category {int}', (categoryId: number) => {
   cy.request({
     method: "GET",
     url: `/api/plants?categoryId=${categoryId}`,
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${commontoken}` },
   }).then((res) => setResponse(res));
 });
 
@@ -445,7 +445,7 @@ When('User searches plant by name {string}', (name: string) => {
   cy.request({
     method: "GET",
     url: `/api/plants/search?name=${encodeURIComponent(name)}`,
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${commontoken}` },
     failOnStatusCode: false, 
   }).then((res) => {
     setResponse(res);
