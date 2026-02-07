@@ -5,7 +5,7 @@ Feature: Admin Plant Management
 
   Scenario: TC_ADMIN_PLANT_01 Admin opens Plant List 
     When Admin clicks "Manage Plants" 
-    Then Plant List page should load 
+    Then Plant List page should load "/ui/plants"
     
   Scenario: TC_ADMIN_PLANT_02 Add Plant button visible 
     Given Admin is on Plant List page "/ui/plants"

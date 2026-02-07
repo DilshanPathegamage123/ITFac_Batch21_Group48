@@ -121,18 +121,19 @@ When('Admin clicks {string}', (text: string) => {
   }
 });
 
-Then('Plant List page should load', (expectedUrl: string) => {
-  PlantsPage.verifyUrl(expectedUrl);
+Then('Plant List page should load {string}', (expectedUrl: string) => {
+  cy.url().should('include', expectedUrl);
   PlantsPage.title().should('be.visible');
 });
+
 
 /* -----------------------------
    TC_ADMIN_PLANT_02 Add Plant button visible (fail) 
 ------------------------------- */
 
-Given('Admin is on Plant List page', (expectedUrl: string) => {
+Given('Admin is on Plant List page {string}', (expectedUrl: string) => {
   cy.fixture('users').then((users) => {
-    cy.visit('/ui/plants');
+    cy.visit(expectedUrl);
     PlantsPage.verifyUrl(expectedUrl);
   });
 });
