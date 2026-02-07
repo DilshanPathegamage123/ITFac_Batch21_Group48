@@ -28,6 +28,7 @@ Feature: Admin User – Plants - API
         Then the response status should be 200
         And plants should be sorted by "name"
 
+    @cleanup
     Scenario: TC_ADMIN_PLANT_14 - Verify Create Plant API with valid data
         Given Admin is authenticated and valid sub-category exists
         When Admin sends a POST request to create a plant with valid data

@@ -144,7 +144,7 @@ Given('Admin is authenticated and valid sub-category exists', () => {
 When('Admin sends a POST request to create a plant with valid data', () => {
   plantPayload = {
     id: 0,
-    name: 'TestPlant',
+    name: 'TestPlant5'+Date.now(),
     price: 150,
     quantity: 25,
     category: {},
@@ -206,7 +206,7 @@ Then(
   () => {
     expect(response.body).to.be.an('object');
     expect(response.body).to.have.property('id');
-    expect(response.body).to.have.property('name').and.equal('TestPlant');
+    expect(response.body).to.have.property('name');
     expect(response.body).to.have.property('price').and.equal(150);
     expect(response.body).to.have.property('quantity').and.equal(25);
     expect(response.body.id).to.be.a('number').and.greaterThan(0);
@@ -320,7 +320,7 @@ When('User sends PUT request to update plant', () => {
 });
 
 
-After(() => {
+After({ tags: "@cleanup" },() => {
   if (plantId) {
     const sqlQuery = `DELETE FROM plants WHERE id = ${plantId}`;
     

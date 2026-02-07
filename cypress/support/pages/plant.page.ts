@@ -4,7 +4,7 @@ class PlantPage {
   }
 
   checkAddPlantButtonNotVisible() {
-    cy.contains('a', 'Add a Plant').should('not.exist');
+    cy.contains('a', 'Add Plant').should('not.exist');
   }
 
   checkAccessDeniedMessage() {
