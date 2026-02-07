@@ -7,11 +7,11 @@ let categoryId: number;
 let plantPayload: any;
 let plantId: number | null = null;
 
-///////////////////////////////////////////////////////////////
-// Retrieve all plants
-///////////////////////////////////////////////////////////////
+/* -----------------------------
+Retrieve all plants
+------------------------------- */
 When('Admin requests plant list', () => {
-  // Send GET request to fetch all plants
+  
   cy.request({
     method: 'GET',
     url: '/api/plants',
@@ -22,23 +22,21 @@ When('Admin requests plant list', () => {
 });
 
 Then('response should match plant list schema', () => {
-  // Assert that the response body is an array
   expect(response.body).to.be.an('array');
 
-  // If there is at least one plant, check that it contains expected properties
   if (response.body.length > 0) {
     const plant = response.body[0];
-    expect(plant).to.have.property('id');       // Each plant must have an ID
-    expect(plant).to.have.property('name');     // Each plant must have a name
-    expect(plant).to.have.property('price');    // Each plant must have a price
-    expect(plant).to.have.property('quantity'); // Each plant must have a quantity
-    expect(plant).to.have.property('category'); // Each plant must belong to a category
+    expect(plant).to.have.property('id');       
+    expect(plant).to.have.property('name');    
+    expect(plant).to.have.property('price');   
+    expect(plant).to.have.property('quantity'); 
+    expect(plant).to.have.property('category'); 
   }
 });
 
-///////////////////////////////////////////////////////////////
-// Pagination support
-///////////////////////////////////////////////////////////////
+/* -----------------------------
+ Pagination support
+------------------------------- */
 When('Admin requests plant list with page {int} and size {int}', (page: number, size: number) => {
   // Send GET request with pagination parameters
   cy.request({
@@ -51,23 +49,20 @@ When('Admin requests plant list with page {int} and size {int}', (page: number, 
 });
 
 Then('response should be paginated', () => {
-  // Spring-style pagination: response should contain these properties
-  expect(response.body).to.have.property('content');       // The actual items
-  expect(response.body).to.have.property('totalElements'); // Total items in DB
-  expect(response.body).to.have.property('totalPages');    // Total pages available
-  expect(response.body).to.have.property('size');          // Page size
-  expect(response.body).to.have.property('number');        // Current page number
+  expect(response.body).to.have.property('content');       
+  expect(response.body).to.have.property('totalElements'); 
+  expect(response.body).to.have.property('totalPages');    
+  expect(response.body).to.have.property('size');          
+  expect(response.body).to.have.property('number');        
 
-  // Ensure content is an array and its length does not exceed requested page size
   expect(response.body.content).to.be.an('array');
   expect(response.body.content.length).to.be.lte(response.body.size);
 });
 
-///////////////////////////////////////////////////////////////
-// Search plants by name
-///////////////////////////////////////////////////////////////
+/* -----------------------------
+Search plants by name
+------*/
 When('Admin searches plant by name {string}', (name: string) => {
-  // Send GET request with search query
   cy.request({
     method: 'GET',
     url: `/api/plants/search?name=${name}`,
@@ -78,20 +73,17 @@ When('Admin searches plant by name {string}', (name: string) => {
 });
 
 Then('all plants should contain name {string}', (name: string) => {
-  // Ensure response is an array
   expect(response.body).to.be.an('array');
 
-  // Each plant name should include the search string (case-insensitive)
   response.body.forEach((plant: any) => {
     expect(plant.name.toLowerCase()).to.include(name.toLowerCase());
   });
 });
 
-///////////////////////////////////////////////////////////////
-// Filter plants by category
-///////////////////////////////////////////////////////////////
+/*-----------------------
+Filter plants by category
+-----*/
 When('Admin filters plants by category {int}', (categoryId: number) => {
-  // Send GET request with categoryId as filter
   cy.request({
     method: 'GET',
     url: `/api/plants?categoryId=${categoryId}`,
@@ -102,20 +94,17 @@ When('Admin filters plants by category {int}', (categoryId: number) => {
 });
 
 Then('all plants should have categoryId {int}', (categoryId: number) => {
-  // Ensure response is an array
   expect(response.body).to.be.an('array');
 
-  // Each plant's category ID should match the requested categoryId
   response.body.forEach((plant: any) => {
     expect(plant.category.id).to.eq(categoryId);
   });
 });
 
-///////////////////////////////////////////////////////////////
-// Sort plants by a field (e.g., name)
-///////////////////////////////////////////////////////////////
+/*----
+Sort plants by a field (e.g., name)
+--*/
 When('Admin sorts plants by {string}', (field: string) => {
-  // Send GET request with sort parameter
   cy.request({
     method: 'GET',
     url: `/api/plants?sort=${field}`,
@@ -126,16 +115,12 @@ When('Admin sorts plants by {string}', (field: string) => {
 });
 
 Then('plants should be sorted by {string}', (field: string) => {
-  // Ensure response is an array
   expect(response.body).to.be.an('array');
 
-  // Extract the field values from all plants (case-insensitive for strings)
   const values = response.body.map((p: any) => p[field].toLowerCase());
 
-  // Verify each value is less than or equal to the next (ascending order)
   for (let i = 0; i < values.length - 1; i++) {
     if (values[i] > values[i + 1]) {
-      // Log any misordered plants for debugging
       cy.log(`Misordered plants: "${values[i]}" > "${values[i + 1]}"`);
     }
     expect(values[i] <= values[i + 1]).to.be.true;

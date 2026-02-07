@@ -28,6 +28,17 @@ class PlantsPage {
   nameCells() {
     return cy.get('tbody tr td:nth-child(2)');
   }
+  searchInput() {
+    return cy.get('input[name="name"]');
+  }
+
+  searchButton() {
+    return cy.contains('Search');
+  }
+
+  plantTableRows() {
+    return cy.get('tbody tr');
+  }
 }
 
 export default new PlantsPage();

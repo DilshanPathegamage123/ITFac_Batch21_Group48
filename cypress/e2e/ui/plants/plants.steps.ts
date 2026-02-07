@@ -110,28 +110,9 @@ Then('Click Save button', () => {
 Then('Observe validation message', () => {
   cy.get('.invalid-feedback').should('be.visible');
 });
-
-// Non-Admin User Scenarios
-When('Non-Admin user navigates to Plants list page {string}', (url: string) => {
-  cy.visit(url);
-});
-
-Then('Add Plant button is not visible on the page', () => {
-  PlantPage.checkAddPlantButtonNotVisible();
-});
-
-When('Non-Admin user directly navigates to {string} in browser', (url: string) => {
-  cy.visit(url, { failOnStatusCode: false });
-});
-
-Then('User is redirected to 403 Forbidden page', () => {
-  cy.url().should('include', '/ui/403');
-});
-
-Then('Access denied message is displayed', () => {
-  PlantPage.checkAccessDeniedMessage();
-});
-
+/* -----------------------------
+   TC_ADMIN_PLANT_01 Admin opens Plant List (Pass)
+------------------------------- */
 When('Admin clicks {string}', (text: string) => {
   if (text === 'Manage Plants') {
     DashboardPage.managePlantsButton().should('be.visible').click();
@@ -143,10 +124,12 @@ Then('Plant List page should load', () => {
   PlantsPage.title().should('be.visible');
 });
 
+/* -----------------------------
+   TC_ADMIN_PLANT_02 Add Plant button visible (fail) 
+------------------------------- */
+
 Given('Admin is on Plant List page', () => {
   cy.fixture('users').then((users) => {
-    LoginPage.visit();
-    LoginPage.login(users.admin.username, users.admin.password);
     cy.visit('/ui/plants');
     PlantsPage.verifyUrl();
   });
@@ -156,6 +139,9 @@ Then('{string} button should be visible', (btn: string) => {
   cy.contains(btn).should('be.visible');
 });
 
+/* -----------------------------
+   TC_ADMIN_PLANT_03 Verify Edit and Delete actions are available for Admin (pass) 
+------------------------------- */
 Then('Edit and Delete buttons should be visible for each plant', () => {
   PlantsPage.editButtons().should('have.length.greaterThan', 0);
   PlantsPage.deleteButtons().should('have.length.greaterThan', 0);
@@ -169,10 +155,16 @@ Then('Edit and Delete buttons should be visible for each plant', () => {
   });
 });
 
+/* -----------------------------
+   TC_ADMIN_PLANT_04 Verify Low stock badge display (pass) 
+------------------------------- */
 Then('Low stock badge should be displayed', () => {
   PlantsPage.lowStockBadges().should('be.visible');
 });
 
+/* -----------------------------
+   TC_ADMIN_PLANT_05 Verify sorting functionality (pass) 
+------------------------------- */
 When('Admin clicks Name column', () => {
   PlantsPage.nameHeader().click();
 });
@@ -202,33 +194,93 @@ Then('Plants should be sorted by {word} order', (order: string) => {
       expect(names).to.deep.equal(sortedNames);
     });
 });
+/* -----------------------------
+   TC_ADMIN_PLANT_06 Search plant by full name with spaces (expected to fail)
+------------------------------- */
 
+When('Admin searches for plant {string}', (plantName: string) => {
+  cy.get('input[name="name"]', { timeout: 10000 })
+    .should('be.visible')
+    .clear()
+    .type(plantName);
+
+  cy.contains('Search').click();
+});
+
+Then('plant {string} should be visible in the results', (plantName: string) => {
+  cy.get('tbody tr').should('have.length.greaterThan', 0);
+  cy.get('tbody').contains(plantName).should('be.visible');
+});
+
+// Non-Admin User Scenarios
+When('Non-Admin user navigates to Plants list page {string}', (url: string) => {
+  cy.visit(url);
+});
+
+Then('Add Plant button is not visible on the page', () => {
+  PlantPage.checkAddPlantButtonNotVisible();
+});
+
+When('Non-Admin user directly navigates to {string} in browser', (url: string) => {
+  cy.visit(url, { failOnStatusCode: false });
+});
+
+Then('User is redirected to 403 Forbidden page', () => {
+  cy.url().should('include', '/ui/403');
+});
+
+Then('Access denied message is displayed', () => {
+  PlantPage.checkAccessDeniedMessage();
+});
+
+/* -----------------------------
+   TC_ADMIN_PLANT_01 Verify sorting functionality (pass) 
+------------------------------- */
+When('user clicks {string}', (text: string) => {
+  if (text === 'Manage Plants') {
+    DashboardPage.managePlantsButton().should('be.visible').click();
+  }
+});
+Then('Plant List page should load for User', () => {
+  PlantsPage.verifyUrl();
+  PlantsPage.title().should('be.visible');
+});
+
+/* -----------------------------
+   TC_ADMIN_PLANT_02 Add Plant hidden for User  (pass) 
+------------------------------- */
 Given('User is on Plant List page', () => {
   cy.fixture('users').then((users) => {
-    LoginPage.visit();
-    LoginPage.login(users.user.username, users.user.password);
     cy.visit('/ui/plants');
   });
 });
-
 Then('{string} button should not be visible', (btn: string) => {
   cy.contains(btn).should('not.exist');
 });
-
+/* -----------------------------
+   TC_ADMIN_PLANT_03 Verify Edit and Delete actions are hidden for User (pass) 
+------------------------------- */
 Then('Edit and Delete actions should not be visible', () => {
   cy.get('.edit').should('not.exist');
   cy.get('.delete').should('not.exist');
 });
-
+/* -----------------------------
+   TC_ADMIN_PLANT_04 Verify plant search functionality for User (fail) 
+------------------------------- */
 When('User searches for plant {string}', (plantName: string) => {
   cy.get('input[name="name"]').clear().type(plantName);
   cy.contains('Search').click();
 });
 
-Then('Matching plant records should be displayed', () => {
-  cy.get('tbody tr').should('have.length.greaterThan', 0);
+Then('Matching plant records should be displayed', (plantName: string) => {
+  cy.get('tbody')
+    .contains('td', plantName)
+    .should('be.visible');
 });
 
+/* -----------------------------
+   TC_ADMIN_PLANT_05 Verify "No plants found" message (pass) 
+------------------------------- */
 Then('"No plants found" message should be displayed', () => {
   cy.contains('No plants found').should('be.visible');
 });
