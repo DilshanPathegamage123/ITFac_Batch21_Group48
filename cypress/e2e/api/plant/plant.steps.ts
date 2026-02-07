@@ -11,13 +11,12 @@ let userToken: string;
 Retrieve all plants
 ------------------------------- */
 When('Admin requests plant list', () => {
-  
   cy.request({
     method: 'GET',
     url: '/api/plants',
-    headers: { Authorization: `Bearer ${token}` }, 
+    headers: { Authorization: `Bearer ${token}` },
   }).then((res) => {
-    setResponse(res); 
+    setResponse(res);
   });
 });
 
@@ -26,11 +25,11 @@ Then('response should match plant list schema', () => {
 
   if (response.body.length > 0) {
     const plant = response.body[0];
-    expect(plant).to.have.property('id');       
-    expect(plant).to.have.property('name');    
-    expect(plant).to.have.property('price');   
-    expect(plant).to.have.property('quantity'); 
-    expect(plant).to.have.property('category'); 
+    expect(plant).to.have.property('id');
+    expect(plant).to.have.property('name');
+    expect(plant).to.have.property('price');
+    expect(plant).to.have.property('quantity');
+    expect(plant).to.have.property('category');
   }
 });
 
@@ -49,11 +48,11 @@ When('Admin requests plant list with page {int} and size {int}', (page: number, 
 });
 
 Then('response should be paginated', () => {
-  expect(response.body).to.have.property('content');       
-  expect(response.body).to.have.property('totalElements'); 
-  expect(response.body).to.have.property('totalPages');    
-  expect(response.body).to.have.property('size');          
-  expect(response.body).to.have.property('number');        
+  expect(response.body).to.have.property('content');
+  expect(response.body).to.have.property('totalElements');
+  expect(response.body).to.have.property('totalPages');
+  expect(response.body).to.have.property('size');
+  expect(response.body).to.have.property('number');
 
   expect(response.body.content).to.be.an('array');
   expect(response.body.content.length).to.be.lte(response.body.size);
@@ -127,18 +126,16 @@ Then('plants should be sorted by {string}', (field: string) => {
   }
 });
 
-
-
 Given('Admin is authenticated and valid sub-category exists', () => {
-    cy.request({
-      method: 'GET',
-      url: '/api/categories/sub-categories',
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => {
-      expect(res.status).to.eq(200);
-      expect(res.body.length).to.be.greaterThan(0);
-      categoryId = res.body[0].id;
-    });
+  cy.request({
+    method: 'GET',
+    url: '/api/categories/sub-categories',
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => {
+    expect(res.status).to.eq(200);
+    expect(res.body.length).to.be.greaterThan(0);
+    categoryId = res.body[0].id;
+  });
 });
 
 When('Admin sends a POST request to create a plant with valid data', () => {
@@ -219,25 +216,27 @@ Then('the response should contain validation error message about Price is requir
   expect(response.body.details.price).to.equal('Price is required');
 });
 
-Then('the response should contain validation error message about quantity cannot be negative', () => {
-  expect(response.body.message).to.equal('Validation failed');
-  expect(response.body.details).to.have.property('quantity');
-  expect(response.body.details.quantity).to.equal('Quantity cannot be negative');
-});
+Then(
+  'the response should contain validation error message about quantity cannot be negative',
+  () => {
+    expect(response.body.message).to.equal('Validation failed');
+    expect(response.body.details).to.have.property('quantity');
+    expect(response.body.details.quantity).to.equal('Quantity cannot be negative');
+  }
+);
 
 // non-admin plant steps can go here
 
 Given('Non-admin user is authenticated and valid sub-category exists', () => {
-    cy.request({
-      method: 'GET',
-      url: '/api/categories/sub-categories',
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => {
-      expect(res.status).to.eq(200);
-      categoryId = res.body[0].id;
-    });
+  cy.request({
+    method: 'GET',
+    url: '/api/categories/sub-categories',
+    headers: { Authorization: `Bearer ${token}` },
+  }).then((res) => {
+    expect(res.status).to.eq(200);
+    categoryId = res.body[0].id;
+  });
 });
-
 
 // EXISTING PLANT SETUP (created by admin)
 
@@ -275,7 +274,6 @@ Given('User is authenticated and plant exists', () => {
     });
   });
 });
-
 
 // CREATE PLANT AS USER (SHOULD FAIL)
 When('User sends POST request to create plant with valid data', () => {
@@ -323,12 +321,12 @@ When('User sends PUT request to update plant', () => {
 After({ tags: "@cleanup" },() => {
   if (plantId) {
     const sqlQuery = `DELETE FROM plants WHERE id = ${plantId}`;
-    
+
     cy.task('queryDb', sqlQuery).then((result: any) => {
-        console.log('Result Object:', result);
+      console.log('Result Object:', result);
       cy.log(`Cleanup successful. Rows affected: ${result.affectedRows}`);
       // Reset the ID for the next run
-      plantId = null; 
+      plantId = null;
     });
   } else {
     cy.log('Cleanup skipped: No plantId captured.');
@@ -338,40 +336,40 @@ After({ tags: "@cleanup" },() => {
 /* -----------------------------
    TC_USER_PLANT_06 Retrieve plant list
 ------------------------------- */
-When("User requests plant list", () => {
+When('User requests plant list', () => {
   cy.request({
-    method: "GET",
-    url: "/api/plants",
+    method: 'GET',
+    url: '/api/plants',
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => setResponse(res));
 });
 
-Then("response status should be 200", () => {
+Then('response status should be 200', () => {
   expect(response.status).to.eq(200);
 });
 
 /* -----------------------------
    TC_USER_PLANT_07 User cannot add plant
 ------------------------------- */
-When("User tries to create plant", () => {
+When('User tries to create plant', () => {
   const plantPayload = {
     id: 0,
-    name: "Unauthorized Plant",
+    name: 'Unauthorized Plant',
     price: 100,
     quantity: 10,
     category: {},
   };
 
   cy.request({
-    method: "POST",
-    url: "/api/plants/category/1", 
+    method: 'POST',
+    url: '/api/plants/category/1',
     headers: { Authorization: `Bearer ${token}` },
     body: plantPayload,
-    failOnStatusCode: false, 
+    failOnStatusCode: false,
   }).then((res) => setResponse(res));
 });
 
-Then("response status should be 403", () => {
+Then('response status should be 403', () => {
   expect(response.status).to.eq(403);
 });
 
@@ -380,14 +378,14 @@ Then("response status should be 403", () => {
 ------------------------------- */
 When('User searches plant by name "{string}"', (name: string) => {
   cy.request({
-    method: "GET",
+    method: 'GET',
     url: `/api/plants/search?name=${encodeURIComponent(name)}`,
     headers: { Authorization: `Bearer ${token}` },
-    failOnStatusCode: false, 
+    failOnStatusCode: false,
   }).then((res) => setResponse(res));
 });
 Then('response should be empty', () => {
-  expect(response.body).to.be.an("array");
+  expect(response.body).to.be.an('array');
   expect(response.body).to.have.length(0);
 });
 
@@ -396,37 +394,33 @@ Then('response should be empty', () => {
 ------------------------------- */
 When('User filters plants by category {int}', (categoryId: number) => {
   cy.request({
-    method: "GET",
+    method: 'GET',
     url: `/api/plants?categoryId=${categoryId}`,
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => setResponse(res));
 });
 
 Then('all plants returned should belong to category {int}', (categoryId: number) => {
-  expect(response.body).to.be.an("array");
+  expect(response.body).to.be.an('array');
 
   const invalidPlants = response.body.filter((p: any) => p.category.id !== categoryId);
-  expect(invalidPlants).to.have.length(
-    0,
-    `Found plants not in category ${categoryId}`
-  );
+  expect(invalidPlants).to.have.length(0, `Found plants not in category ${categoryId}`);
 });
-
 
 /* -----------------------------
    TC_USER_PLANT_10 Invalid search
 ------------------------------- */
 When('User searches plant by name {string}', (name: string) => {
   cy.request({
-    method: "GET",
+    method: 'GET',
     url: `/api/plants/search?name=${encodeURIComponent(name)}`,
     headers: { Authorization: `Bearer ${token}` },
-    failOnStatusCode: false, 
+    failOnStatusCode: false,
   }).then((res) => {
     setResponse(res);
   });
 });
 
 Then('the search response should be empty', () => {
-  expect(response.body).to.be.an("array").and.have.length(0);
+  expect(response.body).to.be.an('array').and.have.length(0);
 });

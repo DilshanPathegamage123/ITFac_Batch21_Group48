@@ -1,7 +1,5 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 import AddPlantPage from '../../../support/pages/addPlant.page';
-import PlantPage from '../../../support/pages/plant.page';
-import LoginPage from '../../../support/pages/login.page';
 import DashboardPage from '../../../support/pages/dashboard.page';
 import PlantsPage from '../../../support/pages/plants.page';
 
@@ -119,8 +117,8 @@ When('Admin clicks {string}', (text: string) => {
   }
 });
 
-Then('Plant List page should load', () => {
-  PlantsPage.verifyUrl();
+Then('Plant List page should load', (expectedUrl: string) => {
+  PlantsPage.verifyUrl(expectedUrl);
   PlantsPage.title().should('be.visible');
 });
 
@@ -128,10 +126,10 @@ Then('Plant List page should load', () => {
    TC_ADMIN_PLANT_02 Add Plant button visible (fail) 
 ------------------------------- */
 
-Given('Admin is on Plant List page', () => {
+Given('Admin is on Plant List page', (expectedUrl: string) => {
   cy.fixture('users').then((users) => {
     cy.visit('/ui/plants');
-    PlantsPage.verifyUrl();
+    PlantsPage.verifyUrl(expectedUrl);
   });
 });
 
@@ -199,10 +197,7 @@ Then('Plants should be sorted by {word} order', (order: string) => {
 ------------------------------- */
 
 When('Admin searches for plant {string}', (plantName: string) => {
-  cy.get('input[name="name"]', { timeout: 10000 })
-    .should('be.visible')
-    .clear()
-    .type(plantName);
+  cy.get('input[name="name"]', { timeout: 10000 }).should('be.visible').clear().type(plantName);
 
   cy.contains('Search').click();
 });
@@ -218,7 +213,7 @@ When('Non-Admin user navigates to Plants list page {string}', (url: string) => {
 });
 
 Then('Add Plant button is not visible on the page', () => {
-  PlantPage.checkAddPlantButtonNotVisible();
+  PlantsPage.checkAddPlantButtonNotVisible();
 });
 
 When('Non-Admin user directly navigates to {string} in browser', (url: string) => {
@@ -230,7 +225,7 @@ Then('User is redirected to 403 Forbidden page', () => {
 });
 
 Then('Access denied message is displayed', () => {
-  PlantPage.checkAccessDeniedMessage();
+  PlantsPage.checkAccessDeniedMessage();
 });
 
 /* -----------------------------
@@ -241,8 +236,8 @@ When('user clicks {string}', (text: string) => {
     DashboardPage.managePlantsButton().should('be.visible').click();
   }
 });
-Then('Plant List page should load for User', () => {
-  PlantsPage.verifyUrl();
+Then('Plant List page should load for User', (expectedUrl: string) => {
+  PlantsPage.verifyUrl(expectedUrl);
   PlantsPage.title().should('be.visible');
 });
 
@@ -273,9 +268,7 @@ When('User searches for plant {string}', (plantName: string) => {
 });
 
 Then('Matching plant records should be displayed', (plantName: string) => {
-  cy.get('tbody')
-    .contains('td', plantName)
-    .should('be.visible');
+  cy.get('tbody').contains('td', plantName).should('be.visible');
 });
 
 /* -----------------------------
