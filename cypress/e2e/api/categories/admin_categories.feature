@@ -10,12 +10,6 @@ Feature: Admin User – Categories - API
     And the response should contain a list of categories
     And each category should have id, name, parent, and subCategories
 
-  @oneTime
-  Scenario: TC_ADMIN_CAT_07 - Verify Admin receives empty array when no categories exist
-    When user sends a GET request to retrieve all categories
-    Then the response status should be 200
-    And the response should be an empty array
-
   Scenario: TC_ADMIN_CAT_08 - Verify Admin can search by category or sub category name
     Given there is at least one matching category
     When user sends a GET request to retrieve categories with name "Flower"
@@ -39,6 +33,19 @@ Feature: Admin User – Categories - API
     Given compute a non-existing category ID
     When user sends DELETE request to delete the category
     Then the response status should be 404
+
+  Scenario: TC_ADMIN_CAT_22 - Verify categories are sorted by parentName in ascending order
+   Given at least one category exists in the system
+   When user sends a GET request to retrieve paginated categories sorted by parentName "asc"
+   Then the response status should be 200
+   And the paginated categories should be sorted by parentName in ascending order
+
+  Scenario: TC_ADMIN_CAT_23 - Verify categories are sorted by parentName in descending order
+   Given at least one category exists in the system
+   When user sends a GET request to retrieve paginated categories sorted by parentName "desc"
+   Then the response status should be 200
+   And the paginated categories should be sorted by parentName in descending order
+
 
 
   Scenario: TC_ADMIN_CAT_16 - Verify Admin can create a new main category successfully

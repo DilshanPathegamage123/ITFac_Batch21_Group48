@@ -154,6 +154,28 @@ When(
   }
 );
 
+When(
+  "user sends a GET request to retrieve paginated categories sorted by parentName {string}",
+  (sortDir: string) => {
+    cy.request({
+      method: "GET",
+      url: "/api/categories/page",
+      qs: {
+        page: 0,
+        size: 10,
+        sortField: "parentName",
+        sortDir,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then((res) => {
+      setResponse(res);
+    });
+  }
+);
+
+
 
 // Main request - Create category
 When("user sends a POST request to create a new main category", () => {
@@ -541,6 +563,37 @@ Then(
     expect(actualMessage.toLowerCase()).to.include(expectedMessage.toLowerCase());
   }
 );
+
+Then(
+  "the paginated categories should be sorted by parentName in ascending order",
+  () => {
+    const parentNames = response.body.content.map(
+      (c: any) => c.parentName === "-" ? "" : c.parentName
+    );
+
+    const sorted = [...parentNames].sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" })
+    );
+
+    expect(parentNames).to.deep.equal(sorted);
+  }
+);
+
+Then(
+  "the paginated categories should be sorted by parentName in descending order",
+  () => {
+    const parentNames = response.body.content.map(
+      (c: any) => c.parentName === "-" ? "" : c.parentName
+    );
+
+    const sorted = [...parentNames]
+      .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+      .reverse();
+
+    expect(parentNames).to.deep.equal(sorted);
+  }
+);
+
 
 
 
