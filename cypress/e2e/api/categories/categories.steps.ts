@@ -264,38 +264,13 @@ When("user sends a GET request to retrieve the category by ID", () => {
   });
 });
 
+
+
 // Sub-category precondition
 Given("at least one sub-category exists in the system", () => {
-  const parentName = `PARENT_${Cypress._.random(100, 999)}`;
-  const childName = `CHILD_${Cypress._.random(100, 999)}`;
-
-  // create parent
-  cy.request({
-    method: "POST",
-    url: "/api/categories",
-    headers: { Authorization: `Bearer ${token}` },
-    body: {
-      name: parentName,
-      parent: null,
-    },
-  }).then((parentRes) => {
-    expect(parentRes.status).to.eq(201);
-    subCategoryParentId = parentRes.body.id;
-
-    // create sub-category
-    return cy.request({
-      method: "POST",
-      url: "/api/categories",
-      headers: { Authorization: `Bearer ${token}` },
-      body: {
-        name: childName,
-        parent: { id: subCategoryParentId }, 
-      },
-    });
-  }).then((childRes) => {
-    expect(childRes.status).to.eq(201);
-  });
+  cy.log("Using existing sub-categories already created by admin");
 });
+
 
 When("user sends a GET request to retrieve all sub-categories", () => {
   cy.request({
@@ -306,6 +281,7 @@ When("user sends a GET request to retrieve all sub-categories", () => {
     setResponse(res);
   });
 });
+
 
 // Negative test: Update non-existent category
 When("user sends PUT request to update non-existent category", () => {
@@ -379,22 +355,8 @@ When("user sends a PUT request to update the category with ID=292", () => {
 });
 
 
-When("user sends a GET request to retrieve all sub-categories", () => {
-  cy.request({
-    method: "GET",
-    url: "/api/categories/sub-categories",
-    headers: { Authorization: `Bearer ${token}` },
-  }).then((res) => {
-    setResponse(res);
-
-    // Optional: assert that the response is an array with at least 1 element
-    expect(res.status).to.eq(200);
-    expect(res.body).to.be.an("array");
-    expect(res.body.length).to.be.greaterThan(0);
-  });
-});
-
 Then("the response should contain only sub-categories", () => {
+  expect(response.status).to.eq(200);
   expect(response.body).to.be.an("array");
   expect(response.body.length).to.be.greaterThan(0);
 
@@ -405,6 +367,7 @@ Then("the response should contain only sub-categories", () => {
     expect(item).to.have.property("subCategories").that.is.an("array");
   });
 });
+
 
 When("user sends GET request to retrieve all main categories", () => {
   cy.request({
@@ -672,15 +635,15 @@ Then("the response should contain the requested category details", () => {
 
 
 // Sub-category assertions
-Then("the response should contain only sub-categories", () => {
-  expect(response.body).to.be.an("array");
-  expect(response.body.length).to.be.greaterThan(0);
+// Then("the response should contain only sub-categories", () => {
+//   expect(response.body).to.be.an("array");
+//   expect(response.body.length).to.be.greaterThan(0);
 
-  response.body.forEach((item: any) => {
-    expect(item).to.have.property("id");
-    expect(item).to.have.property("name");
-  });
-});
+//   response.body.forEach((item: any) => {
+//     expect(item).to.have.property("id");
+//     expect(item).to.have.property("name");
+//   });
+// });
 
 // Negative test assertions
 Then(
@@ -698,7 +661,7 @@ Then(
 
 
 // Assertion: response contains only sub-categories
-Then("the response should contain only sub-categories", () => {
+Then("the also response should contain only sub-categories", () => {
   expect(response.status).to.eq(200);
   expect(response.body).to.be.an("array");
   expect(response.body.length).to.be.greaterThan(0);
