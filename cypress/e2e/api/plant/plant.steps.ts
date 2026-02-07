@@ -318,7 +318,7 @@ When('User sends PUT request to update plant', () => {
 });
 
 
-After({ tags: "@cleanup" },() => {
+After({ tags: "@DeletePlant" },() => {
   if (plantId) {
     const sqlQuery = `DELETE FROM plants WHERE id = ${plantId}`;
 
