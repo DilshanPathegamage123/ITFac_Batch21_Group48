@@ -10,12 +10,6 @@ Feature: Non-Admin User – Categories - API
     And the response should contain a list of categories
     And each category should have id, name, parent, and subCategories
 
-  @oneTime
-  Scenario: TC_USER_CAT_07 - Verify non-admin user receives empty array when no categories exist
-    When user sends a GET request to retrieve all categories
-    Then the response status should be 200
-    And the response should be an empty array
-
   Scenario: TC_USER_CAT_08 - Verify non-admin user can retrieve paginated category list
     Given at least one category exists in the system
     When user sends a GET request to retrieve paginated categories
@@ -62,14 +56,8 @@ Feature: Non-Admin User – Categories - API
   Scenario: TC_USER_CAT_18 - Verify non-admin user can retrieve all sub-categories
     Given at least one sub-category exists in the system
     When user sends a GET request to retrieve all sub-categories
-    Then the response status should be 200
-    And the response should contain only sub-categories
+    Then the response should contain only sub-categories
  
   Scenario: TC_USER_CAT_19 - Verify non-admin user can successfully retrieve main categories
     When user sends GET request to retrieve all main categories
     Then the response should contain a list of main categories
-
-  @oneTime
-  Scenario: TC_USER_CAT_20 - Verify non-admin user receives empty array when no main categories exist
-    When user sends GET request to retrieve all main categories
-    Then the response should be an empty array

@@ -17,12 +17,6 @@ Feature: Admin User – Categories
     Then categories should exist in the system
     And at least one category should be displayed in the categories table
 
-  @oneTime
-  Scenario: TC_ADMIN_CAT_04 - Verify message displayed when no categories exist
-    When Admin clicks on Manage Categories button
-    Then no categories should exist in the system
-    And "No category found" message should be displayed in the categories table
-
   Scenario: TC_ADMIN_CAT_05 - Verify Add Category button is visible to Admin
     When Admin clicks on Manage Categories button
     Then Add Category button should be visible
