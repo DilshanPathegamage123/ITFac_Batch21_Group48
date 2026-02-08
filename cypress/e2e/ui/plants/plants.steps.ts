@@ -14,7 +14,7 @@ When('Admin clicks Cancel button on Add Plant page', () => {
 });
 
 Then(
-  'User is navigated back to Plants list page {string} and no new plant is created; entered data is discarded',
+  'User is navigated back to Plants list page {string}',
   (expectedUrl: string) => {
     AddPlantPage.verifyUrl(expectedUrl);
     cy.url().should('not.include', '/ui/plants/add');
@@ -63,13 +63,13 @@ When('Admin enters Plant Name with 2 characters \\(e.g., "AB")', () => {
 });
 
 When('Admin fills other fields with valid data', () => {
-  AddPlantPage.categorySelect().select('4');
+  AddPlantPage.categorySelect().find('option').eq(1).then(($option) => {
+    const value = $option.val() as string;
+    AddPlantPage.categorySelect().select(value);
+  });
+  
   AddPlantPage.priceInput().clear().type('50');
   AddPlantPage.quantityInput().clear().type('20');
-});
-
-Then('Admin is on Add Plant page', () => {
-  AddPlantPage.pageTitle().should('contain', 'Add Plant');
 });
 
 Then('Leave all fields empty', () => {
@@ -117,18 +117,19 @@ When('Admin clicks {string}', (text: string) => {
   }
 });
 
-Then('Plant List page should load', (expectedUrl: string) => {
-  PlantsPage.verifyUrl(expectedUrl);
+Then('Plant List page should load {string}', (expectedUrl: string) => {
+  cy.url().should('include', expectedUrl);
   PlantsPage.title().should('be.visible');
 });
+
 
 /* -----------------------------
    TC_ADMIN_PLANT_02 Add Plant button visible (fail) 
 ------------------------------- */
 
-Given('Admin is on Plant List page', (expectedUrl: string) => {
+Given('Admin is on Plant List page {string}', (expectedUrl: string) => {
   cy.fixture('users').then((users) => {
-    cy.visit('/ui/plants');
+    cy.visit(expectedUrl);
     PlantsPage.verifyUrl(expectedUrl);
   });
 });
@@ -229,20 +230,20 @@ Then('Access denied message is displayed', () => {
 });
 
 /* -----------------------------
-   TC_ADMIN_PLANT_01 Verify sorting functionality (pass) 
+   TC_USER_PLANT_01 Verify sorting functionality (pass) 
 ------------------------------- */
 When('user clicks {string}', (text: string) => {
   if (text === 'Manage Plants') {
     DashboardPage.managePlantsButton().should('be.visible').click();
   }
 });
-Then('Plant List page should load for User', (expectedUrl: string) => {
+Then('Plant List page should load for User {string}', (expectedUrl: string) => {
   PlantsPage.verifyUrl(expectedUrl);
   PlantsPage.title().should('be.visible');
 });
 
 /* -----------------------------
-   TC_ADMIN_PLANT_02 Add Plant hidden for User  (pass) 
+   TC_USER_PLANT_02 Add Plant hidden for User  (pass) 
 ------------------------------- */
 Given('User is on Plant List page', () => {
   cy.fixture('users').then((users) => {
@@ -253,14 +254,14 @@ Then('{string} button should not be visible', (btn: string) => {
   cy.contains(btn).should('not.exist');
 });
 /* -----------------------------
-   TC_ADMIN_PLANT_03 Verify Edit and Delete actions are hidden for User (pass) 
+   TC_USER_PLANT_03 Verify Edit and Delete actions are hidden for User (pass) 
 ------------------------------- */
 Then('Edit and Delete actions should not be visible', () => {
   cy.get('.edit').should('not.exist');
   cy.get('.delete').should('not.exist');
 });
 /* -----------------------------
-   TC_ADMIN_PLANT_04 Verify plant search functionality for User (fail) 
+   TC_USER_PLANT_04 Verify plant search functionality for User (fail) 
 ------------------------------- */
 When('User searches for plant {string}', (plantName: string) => {
   cy.get('input[name="name"]').clear().type(plantName);
@@ -272,7 +273,7 @@ Then('Matching plant records should be displayed', (plantName: string) => {
 });
 
 /* -----------------------------
-   TC_ADMIN_PLANT_05 Verify "No plants found" message (pass) 
+   TC_USER_PLANT_05 Verify "No plants found" message (pass) 
 ------------------------------- */
 Then('"No plants found" message should be displayed', () => {
   cy.contains('No plants found').should('be.visible');

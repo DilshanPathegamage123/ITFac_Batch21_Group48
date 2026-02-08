@@ -7,6 +7,7 @@ let plantPayload: any;
 let plantId: number | null = null;
 let userToken: string;
 
+
 /* -----------------------------
 Retrieve all plants
 ------------------------------- */
@@ -37,10 +38,9 @@ Then('response should match plant list schema', () => {
  Pagination support
 ------------------------------- */
 When('Admin requests plant list with page {int} and size {int}', (page: number, size: number) => {
-  // Send GET request with pagination parameters
   cy.request({
     method: 'GET',
-    url: `/api/plants?page=${page}&size=${size}`,
+    url: `/api/plants/paged?page=${page}&size=${size}`,
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => {
     setResponse(res);
@@ -58,45 +58,53 @@ Then('response should be paginated', () => {
   expect(response.body.content.length).to.be.lte(response.body.size);
 });
 
-/* -----------------------------
-Search plants by name
-------*/
-When('Admin searches plant by name {string}', (name: string) => {
+/*----------------------- 
+Search plant by ID
+----------------------- */
+When('Admin searches plant by ID {int}', (id: number) => {
+  plantId = id;
+
   cy.request({
     method: 'GET',
-    url: `/api/plants/search?name=${name}`,
+    url: `/api/plants/${plantId}`,
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => {
     setResponse(res);
   });
 });
 
-Then('all plants should contain name {string}', (name: string) => {
-  expect(response.body).to.be.an('array');
 
-  response.body.forEach((plant: any) => {
-    expect(plant.name.toLowerCase()).to.include(name.toLowerCase());
-  });
+
+Then('plant details should contain correct ID and name', () => {
+  expect(response.body).to.have.property('id', plantId);
+  expect(response.body).to.have.property('name');
+  expect(response.body).to.have.property('price');
+  expect(response.body).to.have.property('quantity');
+  expect(response.body).to.have.property('categoryId');
 });
 
 /*-----------------------
 Filter plants by category
 -----*/
+
 When('Admin filters plants by category {int}', (categoryId: number) => {
-  cy.request({
+   cy.request({
     method: 'GET',
-    url: `/api/plants?categoryId=${categoryId}`,
+    url: `/api/plants/category/${categoryId}`,
     headers: { Authorization: `Bearer ${token}` },
+    failOnStatusCode: false, 
   }).then((res) => {
-    setResponse(res);
+    setResponse(res); 
   });
 });
 
 Then('all plants should have categoryId {int}', (categoryId: number) => {
+  expect(response.status).to.eq(200);
   expect(response.body).to.be.an('array');
 
   response.body.forEach((plant: any) => {
-    expect(plant.category.id).to.eq(categoryId);
+    expect(plant).to.have.property('category');
+    expect(plant.category).to.have.property('id', categoryId);
   });
 });
 
@@ -106,17 +114,23 @@ Sort plants by a field (e.g., name)
 When('Admin sorts plants by {string}', (field: string) => {
   cy.request({
     method: 'GET',
-    url: `/api/plants?sort=${field}`,
+    url: `/api/plants/paged`,
     headers: { Authorization: `Bearer ${token}` },
+    qs: {
+      page: 0,
+      size: 100, 
+      sort: [`${field},asc`], 
+    },
   }).then((res) => {
-    setResponse(res);
+    setResponse(res); 
   });
 });
 
 Then('plants should be sorted by {string}', (field: string) => {
-  expect(response.body).to.be.an('array');
+  expect(response.status).to.eq(200);
+  expect(response.body).to.have.property('content').and.to.be.an('array');
 
-  const values = response.body.map((p: any) => p[field].toLowerCase());
+  const values = response.body.content.map((p: any) => p[field].toLowerCase());
 
   for (let i = 0; i < values.length - 1; i++) {
     if (values[i] > values[i + 1]) {
@@ -125,6 +139,27 @@ Then('plants should be sorted by {string}', (field: string) => {
     expect(values[i] <= values[i + 1]).to.be.true;
   }
 });
+
+
+// Filter plants by non-existing category
+When('Admin filters plants by non-existing category {int}', (categoryId: number) => {
+  cy.request({
+    method: 'GET',
+    url: `/api/plants/category/${categoryId}`,
+    headers: { Authorization: `Bearer ${token}` },
+    failOnStatusCode: false, 
+  }).then((res) => {
+    setResponse(res); 
+  });
+});
+
+Then('the response should fail with category not found for {int}', (categoryId: number) => {
+  expect(response.status).to.eq(404); 
+
+  expect(response.body).to.have.property('message', 'Category not found');
+});
+
+
 
 Given('Admin is authenticated and valid sub-category exists', () => {
   cy.request({
@@ -376,18 +411,25 @@ Then('response status should be 403', () => {
 /* -----------------------------
    TC_USER_PLANT_08 Search by name
 ------------------------------- */
-When('User searches plant by name "{string}"', (name: string) => {
+When('User searches plant by name {string}', (name: string) => {
   cy.request({
     method: 'GET',
-    url: `/api/plants/search?name=${encodeURIComponent(name)}`,
+    url: `/api/plants/paged?name=${encodeURIComponent(name)}&page=0&size=100`,
     headers: { Authorization: `Bearer ${token}` },
     failOnStatusCode: false,
-  }).then((res) => setResponse(res));
+  }).then((res) => {
+    setResponse(res);
+  });
 });
-Then('response should be empty', () => {
-  expect(response.body).to.be.an('array');
-  expect(response.body).to.have.length(0);
+
+
+
+Then('response should contain plants', () => {
+  expect(response.body).to.have.property('content').and.to.be.an('array');
+  expect(response.body.content.length).to.be.greaterThan(0);
 });
+
+
 
 /* -----------------------------
    TC_USER_PLANT_09 Filter plants by category
@@ -395,7 +437,7 @@ Then('response should be empty', () => {
 When('User filters plants by category {int}', (categoryId: number) => {
   cy.request({
     method: 'GET',
-    url: `/api/plants?categoryId=${categoryId}`,
+    url: `/api/plants/category/${categoryId}`,
     headers: { Authorization: `Bearer ${token}` },
   }).then((res) => setResponse(res));
 });
@@ -410,17 +452,22 @@ Then('all plants returned should belong to category {int}', (categoryId: number)
 /* -----------------------------
    TC_USER_PLANT_10 Invalid search
 ------------------------------- */
-When('User searches plant by name {string}', (name: string) => {
+When('User searches plant by invalid name {string}', (name: string) => {
   cy.request({
     method: 'GET',
-    url: `/api/plants/search?name=${encodeURIComponent(name)}`,
+    url: `/api/plants/paged?name=${encodeURIComponent(name)}&page=0&size=100`,
     headers: { Authorization: `Bearer ${token}` },
     failOnStatusCode: false,
   }).then((res) => {
     setResponse(res);
   });
 });
-
 Then('the search response should be empty', () => {
-  expect(response.body).to.be.an('array').and.have.length(0);
+  expect(response.status).to.eq(200);
+  expect(response.body)
+    .to.have.property('content')
+    .and.to.be.an('array')
+    .and.have.length(0);
 });
+
+

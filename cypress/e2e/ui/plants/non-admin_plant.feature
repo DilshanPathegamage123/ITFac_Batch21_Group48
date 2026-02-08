@@ -5,7 +5,7 @@ Feature: Non-Admin Plant Management
 
     Scenario: TC_USER_PLANT_01 Verify Plant List page loads for User
        When user clicks "Manage Plants" 
-        Then Plant List page should load for User
+        Then Plant List page should load for User "/ui/plants"
 
     Scenario: TC_USER_PLANT_02 Add Plant hidden for User 
         Given User is on Plant List page 

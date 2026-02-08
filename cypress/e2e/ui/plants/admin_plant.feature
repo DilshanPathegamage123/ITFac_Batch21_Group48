@@ -5,39 +5,39 @@ Feature: Admin Plant Management
 
   Scenario: TC_ADMIN_PLANT_01 Admin opens Plant List 
     When Admin clicks "Manage Plants" 
-    Then Plant List page should load 
+    Then Plant List page should load "/ui/plants"
     
   Scenario: TC_ADMIN_PLANT_02 Add Plant button visible 
-    Given Admin is on Plant List page 
+    Given Admin is on Plant List page "/ui/plants"
     Then "Add Plant" button should be visible 
 
   Scenario: TC_ADMIN_PLANT_03 Verify Edit and Delete actions are available for Admin
-    Given Admin is on Plant List page
+    Given Admin is on Plant List page "/ui/plants"
     Then Edit and Delete buttons should be visible for each plant
 
   Scenario: TC_ADMIN_PLANT_04 Verify Low stock badge display
     Given Admin is logged in
-    And Admin is on Plant List page
+    And Admin is on Plant List page "/ui/plants"
     Then Low stock badge should be displayed
 
 
   Scenario: TC_ADMIN_PLANT_05 Verify sorting functionality
     Given Admin is logged in
-    And Admin is on Plant List page
+    And Admin is on Plant List page "/ui/plants"
     When Admin clicks Name column
     Then Plants should be sorted by ascending order
     Then Plants should be sorted by descending order
 
 
   Scenario: TC_ADMIN_PLANT_06 – Search plant by full name with spaces
-    Then Admin is on Plant List page
+    Then Admin is on Plant List page "/ui/plants"
     When Admin searches for plant "Plant 1"
     Then plant "Plant 1" should be visible in the results
 
   Scenario: TC_ADMIN_PLANT_11 - Verify Cancel button functionality on Add Plant page
     Then Admin is on Add Plant page "/ui/plants/add"
     When Admin clicks Cancel button on Add Plant page
-    Then User is navigated back to Plants list page "/ui/plants" and no new plant is created; entered data is discarded
+    Then User is navigated back to Plants list page "/ui/plants"
 
   Scenario: TC_ADMIN_PLANT_12 - Verify validation errors display for empty mandatory fields
     Then Admin is on Add Plant page "/ui/plants/add"
